@@ -1,17 +1,31 @@
 ---
-name: pg-connection-investigation
-description: Investigate and resolve PostgreSQL high connection count issues. Use when users mention connection count problems, too many connections, max_connections errors, connection pool exhaustion, connection leaks, idle connections, or need to analyze pg_stat_activity for connection issues.
+name: investigating-pg-connections
+description: Investigate and resolve PostgreSQL high connections issues. Use when users mention connections problems, too many connections, max_connections errors, connection pool exhaustion, connection leaks, idle connections, or need to analyze pg_stat_activity for connection issues.
 ---
 
 # PostgreSQL High Connection Count Investigation
 
-## Overview
+## Prerequisites
 
-This skill provides a systematic approach to investigating and resolving high connection count issues in PostgreSQL databases. It guides you through connection analysis, identifying problematic patterns, and implementing solutions.
+**Required PostgreSQL version:** 9.6+
+
+**No extensions required** - All queries use built-in system views (pg_stat_activity, pg_settings).
+
+**Note:** Thresholds in this skill (e.g., 20% connection utilization) are defaults and should be adjusted based on your workload characteristics.
 
 ## Investigation Workflow
 
-Follow this step-by-step process when investigating connection issues:
+**Progress Checklist:**
+
+```
+- [ ] Step 1: Get connection stats
+- [ ] Step 2: Analyze connection trend
+- [ ] Step 3: Evaluate instance configuration
+- [ ] Step 4: Identify connection sources
+- [ ] Step 5: Analyze idle connections
+- [ ] Step 6: Generate summary and recommendations
+- [ ] Verify: Confirm resolution
+```
 
 ### Step 1: Get Connection Stats
 
@@ -33,12 +47,13 @@ FROM
 ```
 
 **Decision Point:**
-- If utilization < 20%: Connection count is healthy. Stop investigation unless specific issues reported.
+
+- If utilization < 20%: Connections is healthy. Stop investigation unless specific issues reported.
 - If utilization >= 20%: Continue to Step 2.
 
 ### Step 2: Analyze Connection Trend
 
-Check connection count over time to identify trends:
+Check connections over time to identify trends:
 
 ```sql
 -- Check current snapshot of connection ages
@@ -52,6 +67,7 @@ ORDER BY 1;
 ```
 
 **Evaluate:**
+
 - Is the trend upward? Calculate time until max_connections is reached.
 - **ALERT**: If max_connections will be reached within 1 hour, immediate action required.
 
@@ -68,6 +84,7 @@ WHERE name IN ('max_connections', 'superuser_reserved_connections',
 ```
 
 **Evaluate:**
+
 - Is max_connections appropriate for instance type? (See guidelines below)
 - Are there many idle connections that could be cleaned up?
 - Are timeout settings configured?
@@ -91,6 +108,7 @@ ORDER BY total_connections DESC;
 ```
 
 **Look for:**
+
 - Large groups of "idle in transaction" connections (problematic - holding locks)
 - Many connections from single application/IP (potential connection leak)
 - Patterns in wait_event (blocking issues)
@@ -119,29 +137,30 @@ LIMIT 20;
 ### Step 6: Generate Summary and Recommendations
 
 Based on findings, provide:
+
 1. Root cause identification
 2. Immediate actions (if critical)
 3. Long-term recommendations
 
 ## Connection States Reference
 
-| State | Description | Concern Level |
-|-------|-------------|---------------|
-| `idle` | Connection open but not executing | Low - but watch for accumulation |
-| `active` | Currently executing a query | Normal |
-| `idle in transaction` | In a transaction but not executing | **High** - holding locks, blocking others |
-| `idle in transaction (aborted)` | Transaction failed, waiting for ROLLBACK | **Critical** - must be resolved |
+| State                           | Description                              | Concern Level                             |
+| ------------------------------- | ---------------------------------------- | ----------------------------------------- |
+| `idle`                          | Connection open but not executing        | Low - but watch for accumulation          |
+| `active`                        | Currently executing a query              | Normal                                    |
+| `idle in transaction`           | In a transaction but not executing       | **High** - holding locks, blocking others |
+| `idle in transaction (aborted)` | Transaction failed, waiting for ROLLBACK | **Critical** - must be resolved           |
 
 ## max_connections Guidelines
 
 Recommended settings based on instance size:
 
 | Instance Size | vCPU | Recommended max_connections |
-|---------------|------|----------------------------|
-| Small | 2-4 | 100-200 |
-| Medium | 4-8 | 200-500 |
-| Large | 8-16 | 500-1000 |
-| XLarge | 16+ | 1000+ (consider pooling) |
+| ------------- | ---- | --------------------------- |
+| Small         | 2-4  | 100-200                     |
+| Medium        | 4-8  | 200-500                     |
+| Large         | 8-16 | 500-1000                    |
+| XLarge        | 16+  | 1000+ (consider pooling)    |
 
 **Important:** For applications requiring > 500 connections, implement connection pooling (PgBouncer, pgpool-II).
 
@@ -188,11 +207,13 @@ WHERE state = 'idle in transaction'
 ## Long-Term Resolution Strategies
 
 ### 1. Implement Connection Pooling
+
 - **PgBouncer**: Lightweight, recommended for most use cases
 - **pgpool-II**: More features, higher complexity
 - Configure in transaction or session pooling mode based on needs
 
 ### 2. Configure Timeout Settings
+
 ```sql
 -- Set idle in transaction timeout (terminates idle transactions)
 ALTER SYSTEM SET idle_in_transaction_session_timeout = '5min';
@@ -205,12 +226,14 @@ SELECT pg_reload_conf();
 ```
 
 ### 3. Application-Level Fixes
+
 - Review connection handling code
 - Ensure connections are properly closed/returned to pool
 - Implement connection timeouts in application
 - Use connection health checks
 
 ### 4. Adjust max_connections
+
 ```sql
 -- Check current setting
 SHOW max_connections;
@@ -223,6 +246,7 @@ ALTER SYSTEM SET max_connections = 500;
 ## Quick Diagnosis Queries
 
 ### Connection Count by State
+
 ```sql
 SELECT state, count(*)
 FROM pg_stat_activity
@@ -231,6 +255,7 @@ ORDER BY count DESC;
 ```
 
 ### Connections by Application
+
 ```sql
 SELECT application_name, count(*)
 FROM pg_stat_activity
@@ -239,6 +264,7 @@ ORDER BY count DESC;
 ```
 
 ### Connections by User
+
 ```sql
 SELECT usename, count(*)
 FROM pg_stat_activity
@@ -247,6 +273,7 @@ ORDER BY count DESC;
 ```
 
 ### Long-Running Transactions
+
 ```sql
 SELECT pid, usename, application_name, state,
        NOW() - xact_start AS transaction_age,
@@ -255,4 +282,46 @@ FROM pg_stat_activity
 WHERE xact_start IS NOT NULL
 ORDER BY xact_start ASC
 LIMIT 10;
+```
+
+## Verification
+
+After taking action, verify the issue is resolved:
+
+```sql
+-- Re-check connection utilization
+SELECT
+    count(*) AS total_connections,
+    current_setting('max_connections')::int AS max_connections,
+    round(100.0 * count(*) / current_setting('max_connections')::int, 2) AS utilization_pct
+FROM pg_stat_activity;
+```
+
+If utilization is still high, return to Step 1 with new data.
+
+## Investigation Summary Template
+
+After investigation, provide a summary in this format:
+
+```
+## Connection Investigation Summary
+
+**Current State:**
+- Total connections: X / max_connections
+- Utilization: X%
+- Non-idle connections: X
+
+**Root Cause:**
+[Primary cause of high connections]
+
+**Immediate Actions Taken:**
+- [Action 1]
+- [Action 2]
+
+**Long-Term Recommendations:**
+1. [Recommendation with rationale]
+2. [Recommendation with rationale]
+
+**Estimated Impact:**
+[Expected improvement after implementing recommendations]
 ```

@@ -1,17 +1,36 @@
 ---
-name: pg-memory-investigation
-description: Investigate and resolve PostgreSQL low freeable memory issues, OOM errors, and memory pressure. Use when users mention low memory, out of memory, OOM errors, freeable memory concerns, memory pressure, or need to optimize PostgreSQL memory settings.
+name: investigating-pg-memory
+description: Investigate and resolve PostgreSQL low freeable memory issues, OOM errors, and memory pressure. Use when users mention low memory, out of memory, OOM errors, freeable memory concerns, memory pressure, or need to optimize PostgreSQL memory settings like shared_buffers or work_mem.
 ---
 
 # PostgreSQL Low Memory Investigation
 
-## Overview
+## Prerequisites
 
-This skill provides a systematic approach to investigating and resolving low freeable memory issues in PostgreSQL databases. It covers memory metric analysis, configuration review, connection auditing, and resolution strategies for both self-managed and cloud-hosted PostgreSQL instances.
+**Required PostgreSQL version:** 9.6+
+
+**Optional extensions:**
+
+- `pg_stat_statements` - Required for identifying queries creating temporary files. Enable with:
+  ```sql
+  CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+  ```
+
+**Note:** Memory thresholds in this skill (e.g., 25% RAM for shared_buffers) are guidelines and should be adjusted based on your specific workload and instance characteristics.
 
 ## Investigation Workflow
 
-Follow these steps in order when investigating memory issues:
+**Progress Checklist:**
+
+```
+- [ ] Step 1: Check freeable memory metrics
+- [ ] Step 2: Compare against instance capacity
+- [ ] Step 3: Check logs for memory issues
+- [ ] Step 4: Analyze active connections
+- [ ] Step 5: Review memory configuration
+- [ ] Apply resolution strategies
+- [ ] Verify: Confirm memory pressure resolved
+```
 
 ### Step 1: Check Freeable Memory Metrics
 
@@ -22,6 +41,7 @@ Get current memory metrics from your monitoring system or cloud provider dashboa
 - **Self-managed**: Use system tools like `free -m` or check `/proc/meminfo`
 
 Critical thresholds:
+
 - **Warning**: Below 25% of total RAM
 - **Critical**: Below 10% of total RAM or under 1GB
 
@@ -44,6 +64,7 @@ Compare these values against your instance's total RAM to ensure proper ratios.
 Review PostgreSQL logs for memory pressure indicators:
 
 **Critical patterns to search for:**
+
 - `out of memory` - OOM errors (CRITICAL - requires immediate action)
 - `could not resize shared memory segment`
 - `temporary file`
@@ -108,13 +129,13 @@ WHERE name IN (
 
 ### Recommended Settings Based on Total RAM
 
-| Setting | Recommendation | Notes |
-|---------|---------------|-------|
-| `shared_buffers` | 25% of RAM (max ~8GB) | Larger values have diminishing returns |
-| `work_mem` | (RAM - shared_buffers) / (max_connections * 3) | Per-operation, not per-connection |
-| `maintenance_work_mem` | 5% of RAM or 1-2GB max | Used for VACUUM, CREATE INDEX |
-| `effective_cache_size` | ~75% of RAM | Helps query planner, no memory allocated |
-| `max_connections` | Based on actual needs | Each connection reserves memory |
+| Setting                | Recommendation                                  | Notes                                    |
+| ---------------------- | ----------------------------------------------- | ---------------------------------------- |
+| `shared_buffers`       | 25% of RAM (max ~8GB)                           | Larger values have diminishing returns   |
+| `work_mem`             | (RAM - shared_buffers) / (max_connections \* 3) | Per-operation, not per-connection        |
+| `maintenance_work_mem` | 5% of RAM or 1-2GB max                          | Used for VACUUM, CREATE INDEX            |
+| `effective_cache_size` | ~75% of RAM                                     | Helps query planner, no memory allocated |
+| `max_connections`      | Based on actual needs                           | Each connection reserves memory          |
 
 ### Example Calculations (32GB RAM Instance)
 
@@ -130,10 +151,12 @@ effective_cache_size = 24GB (75% of 32GB)
 ### 1. Too Many Connections
 
 **Symptoms:**
+
 - High connection count in `pg_stat_activity`
 - Memory usage scales with connection count
 
 **Resolution:**
+
 ```sql
 -- Check current vs max connections
 SELECT
@@ -144,20 +167,24 @@ SELECT
 ### 2. Shared Buffers Too High
 
 **Symptoms:**
+
 - `shared_buffers` exceeds 25% of RAM
 - System swapping observed
 
 **Resolution:**
+
 - Reduce `shared_buffers` to 25% of RAM or 8GB maximum
 - Restart PostgreSQL (requires restart, not just reload)
 
 ### 3. Memory-Intensive Queries
 
 **Symptoms:**
+
 - Queries with large sorts, hash joins, or aggregations
 - Temporary files being created
 
 **Resolution:**
+
 ```sql
 -- Find queries creating temporary files
 SELECT
@@ -174,20 +201,24 @@ LIMIT 10;
 ### 4. Missing Connection Pooler
 
 **Symptoms:**
+
 - Direct application connections to database
 - Connection count matches application server count
 
 **Resolution:**
+
 - Implement PgBouncer or similar connection pooler
 - Use transaction-level pooling for web applications
 
 ### 5. Memory Leaks in Extensions
 
 **Symptoms:**
+
 - Memory usage grows over time without traffic increase
 - Specific extensions showing high memory in logs
 
 **Resolution:**
+
 - Review and update extensions
 - Consider removing problematic extensions
 - Schedule periodic restarts if necessary
@@ -197,6 +228,7 @@ LIMIT 10;
 ### Immediate Actions (No Restart Required)
 
 1. **Terminate memory-heavy queries:**
+
 ```sql
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
@@ -205,6 +237,7 @@ WHERE state = 'active'
 ```
 
 2. **Reduce work_mem temporarily:**
+
 ```sql
 ALTER SYSTEM SET work_mem = '32MB';
 SELECT pg_reload_conf();
@@ -213,6 +246,7 @@ SELECT pg_reload_conf();
 ### Medium-Term Actions (May Require Restart)
 
 1. **Implement connection pooling** - PgBouncer configuration example:
+
 ```ini
 [databases]
 mydb = host=localhost dbname=mydb
@@ -238,6 +272,7 @@ default_pool_size = 20
 ### AWS RDS
 
 For memory-optimized workloads, consider:
+
 - **r6g family**: Memory-optimized with Graviton2 processors
 - **r5 family**: Previous generation memory-optimized
 - **x2g family**: Extreme memory ratios
@@ -245,6 +280,7 @@ For memory-optimized workloads, consider:
 ### GCP Cloud SQL
 
 For high-memory requirements:
+
 - **High-memory machine types** (e.g., `db-highmem-*`)
 - Custom machine types with higher memory-to-CPU ratios
 
@@ -282,4 +318,39 @@ SELECT
     'total/active/idle/idle_in_txn' AS item,
     c.total_connections || '/' || c.active || '/' || c.idle || '/' || c.idle_in_txn AS value
 FROM connection_stats c;
+```
+
+## Verification
+
+After taking action, verify memory pressure is resolved by checking:
+
+- Cloud provider freeable memory metric
+- `free -m` on self-managed instances
+- No new OOM errors in logs
+
+## Investigation Summary Template
+
+After investigation, provide a summary in this format:
+
+```
+## Memory Investigation Summary
+
+**Memory Status:** [Healthy / Warning / Critical]
+**Freeable Memory:** [Current value]
+
+**Root Cause:**
+[Primary cause of memory pressure]
+
+**Actions Taken:**
+- [Action 1]
+- [Action 2]
+
+**Configuration Changes:**
+| Parameter | Old Value | New Value |
+|-----------|-----------|-----------|
+| [param]   | [old]     | [new]     |
+
+**Long-Term Recommendations:**
+1. [Recommendation]
+2. [Recommendation]
 ```

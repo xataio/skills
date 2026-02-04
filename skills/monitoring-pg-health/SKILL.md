@@ -1,17 +1,36 @@
 ---
-name: pg-general-monitoring
-description: PostgreSQL general health monitoring and performance assessment. Use when performing routine database health checks, monitoring connections, analyzing slow queries, reviewing database metrics, or assessing overall PostgreSQL performance. Triggers on "check database health", "monitor postgres", "slow queries", "connection stats", "database performance".
+name: monitoring-pg-health
+description: PostgreSQL general health monitoring and performance assessment. Use when performing routine database health checks, monitoring connections, analyzing slow queries, reviewing database metrics, or assessing overall PostgreSQL performance.
 ---
 
 # PostgreSQL General Monitoring
 
-## Overview
+## Prerequisites
 
-This skill provides a systematic approach to assessing PostgreSQL database health by reviewing key metrics, analyzing logs, evaluating slow queries, and monitoring resource utilization. Use this for routine health checks and performance assessments.
+**Required PostgreSQL version:** 9.6+
+
+**Optional extensions:**
+
+- `pg_stat_statements` - Required for slow query analysis (Step 3). Enable with:
+  ```sql
+  CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+  ```
+
+**Note:** Thresholds in this skill (e.g., 80% connection utilization, 2-second query threshold) are defaults and should be adjusted based on your workload characteristics.
 
 ## Monitoring Workflow
 
-Follow this step-by-step process for comprehensive database health assessment:
+**Progress Checklist:**
+
+```
+- [ ] Step 1: Check connection statistics
+- [ ] Step 2: Review key system metrics
+- [ ] Step 3: Evaluate slow queries
+- [ ] Step 4: Analyze table statistics
+- [ ] Step 5: Check important settings
+- [ ] Step 6: Review database logs
+- [ ] Step 7: Document findings
+```
 
 ### Step 1: Check Connection Statistics
 
@@ -31,6 +50,7 @@ FROM
 ```
 
 **What to look for:**
+
 - Connection utilization should stay below 80%
 - High non_idle_connections may indicate query bottlenecks
 - Sudden spikes warrant investigation
@@ -39,12 +59,12 @@ FROM
 
 Check these critical areas:
 
-| Metric | Healthy Range | Warning Signs |
-|--------|---------------|---------------|
-| CPU Utilization | < 80% sustained | Consistent > 90% |
-| Freeable Memory | > 20% available | < 10% available |
-| Read/Write IOPS | Within provisioned limits | Sustained spikes |
-| Disk Queue Depth | 0-1 | Consistently > 0 |
+| Metric           | Healthy Range             | Warning Signs    |
+| ---------------- | ------------------------- | ---------------- |
+| CPU Utilization  | < 80% sustained           | Consistent > 90% |
+| Freeable Memory  | > 20% available           | < 10% available  |
+| Read/Write IOPS  | Within provisioned limits | Sustained spikes |
+| Disk Queue Depth | 0-1                       | Consistently > 0 |
 
 ### Step 3: Evaluate Slow Queries
 
@@ -87,6 +107,7 @@ LIMIT 20;
 ```
 
 **What to look for:**
+
 - Tables with high seq_scan and low idx_scan may need indexing
 - Large tables with many sequential scans indicate performance issues
 
@@ -108,6 +129,7 @@ ORDER BY name;
 ```
 
 **Recommended baselines:**
+
 - `shared_buffers`: 25% of system RAM
 - `effective_cache_size`: 50-75% of system RAM
 - `work_mem`: Start with 4MB, increase for complex queries
@@ -116,6 +138,7 @@ ORDER BY name;
 ### Step 6: Review Database Logs
 
 Check recent logs for warnings and errors:
+
 - Authentication failures
 - Connection timeouts
 - Deadlock occurrences
@@ -125,6 +148,7 @@ Check recent logs for warnings and errors:
 ### Step 7: Document Findings
 
 Record all findings including:
+
 - Current metric values and thresholds
 - Any issues discovered and actions taken
 - Recurring patterns requiring attention
@@ -141,4 +165,30 @@ For a rapid assessment, run these queries in sequence:
 ## Resources
 
 Additional SQL queries and reference material are available in:
-- `references/monitoring_queries.sql` - Complete collection of monitoring queries
+
+- `references/monitoring_queries.md` - Complete collection of monitoring queries with interpretation guides
+
+## Health Check Summary Template
+
+After assessment, provide a summary in this format:
+
+```
+## Database Health Check Summary
+
+**Overall Status:** [Healthy / Warning / Critical]
+
+**Key Metrics:**
+- Connection utilization: X%
+- Slow queries (>2s): X found
+- Tables needing vacuum: X
+
+**Issues Found:**
+1. [Issue with severity]
+2. [Issue with severity]
+
+**Recommendations:**
+1. [Action item with priority]
+2. [Action item with priority]
+
+**Next Review:** [Suggested timeframe]
+```

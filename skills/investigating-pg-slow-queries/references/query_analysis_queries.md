@@ -3,6 +3,7 @@
 ## Finding Slow Queries
 
 ### Basic pg_stat_statements Query
+
 ```sql
 SELECT
   calls,
@@ -18,6 +19,7 @@ LIMIT 10;
 ```
 
 ### Detailed Statistics Including I/O
+
 ```sql
 SELECT
   calls,
@@ -38,6 +40,7 @@ LIMIT 10;
 ```
 
 ### Top Queries by Total Time (Any Duration)
+
 ```sql
 SELECT
   calls,
@@ -53,6 +56,7 @@ LIMIT 20;
 ## Schema Investigation
 
 ### Find Table Schema
+
 ```sql
 SELECT schemaname as schema
 FROM pg_tables
@@ -62,6 +66,7 @@ LIMIT 1;
 ```
 
 ### Get Table Columns
+
 ```sql
 SELECT
   column_name,
@@ -75,6 +80,7 @@ ORDER BY ordinal_position;
 ```
 
 ### Get Table Indexes
+
 ```sql
 SELECT
   i.relname as index_name,
@@ -91,6 +97,7 @@ GROUP BY i.relname, ix.indisunique, ix.indisprimary, i.oid;
 ```
 
 ### Table Size Information
+
 ```sql
 SELECT
   pg_size_pretty(pg_total_relation_size('schema.table')) as total_size,
@@ -102,6 +109,7 @@ SELECT
 ## EXPLAIN Templates
 
 ### Safe EXPLAIN with Timeouts
+
 ```sql
 BEGIN;
 SET LOCAL statement_timeout = '2000ms';
@@ -114,6 +122,7 @@ ROLLBACK;
 ```
 
 ### EXPLAIN for Parameterized Queries
+
 ```sql
 BEGIN;
 SET LOCAL statement_timeout = '2000ms';
@@ -126,6 +135,7 @@ ROLLBACK;
 ```
 
 ### EXPLAIN ANALYZE (Caution: Executes Query)
+
 ```sql
 BEGIN;
 SET LOCAL statement_timeout = '2000ms';
@@ -139,6 +149,7 @@ ROLLBACK;
 ```
 
 ### EXPLAIN with JSON Output (for programmatic analysis)
+
 ```sql
 EXPLAIN (FORMAT JSON, ANALYZE true, BUFFERS true)
 SELECT * FROM your_table WHERE column = 'value';
@@ -147,6 +158,7 @@ SELECT * FROM your_table WHERE column = 'value';
 ## Index Analysis
 
 ### Find Unused Indexes
+
 ```sql
 SELECT
   schemaname || '.' || relname as table,
@@ -161,6 +173,7 @@ ORDER BY pg_relation_size(i.indexrelid) DESC;
 ```
 
 ### Find Missing Indexes (Tables with Sequential Scans)
+
 ```sql
 SELECT
   schemaname || '.' || relname as table,
@@ -177,6 +190,7 @@ LIMIT 20;
 ```
 
 ### Index Usage Statistics
+
 ```sql
 SELECT
   t.relname as table_name,
@@ -195,6 +209,7 @@ ORDER BY idx.idx_scan DESC;
 ## Index Creation Examples
 
 ### B-tree Index (Default)
+
 ```sql
 -- Single column
 CREATE INDEX idx_users_email ON users(email);
@@ -207,6 +222,7 @@ CREATE INDEX idx_posts_created_desc ON posts(created_at DESC);
 ```
 
 ### Partial Index
+
 ```sql
 -- Index only active records
 CREATE INDEX idx_users_email_active ON users(email) WHERE is_active = true;
@@ -217,6 +233,7 @@ WHERE created_at > '2024-01-01';
 ```
 
 ### Covering Index
+
 ```sql
 -- Include additional columns to enable index-only scans
 CREATE INDEX idx_orders_user_covering ON orders(user_id)
@@ -224,6 +241,7 @@ INCLUDE (order_total, status, created_at);
 ```
 
 ### Text Search Indexes
+
 ```sql
 -- For LIKE 'prefix%' queries
 CREATE INDEX idx_users_name_pattern ON users(name text_pattern_ops);
@@ -233,6 +251,7 @@ CREATE INDEX idx_posts_content_fts ON posts USING GIN(to_tsvector('english', con
 ```
 
 ### JSONB Indexes
+
 ```sql
 -- GIN index for JSONB containment queries
 CREATE INDEX idx_data_jsonb ON table_name USING GIN(data_column);
@@ -244,6 +263,7 @@ CREATE INDEX idx_data_type ON table_name((data_column->>'type'));
 ## Performance Diagnostics
 
 ### Check Table Statistics Freshness
+
 ```sql
 SELECT
   schemaname,
@@ -259,11 +279,13 @@ WHERE relname = 'your_table';
 ```
 
 ### Force Statistics Update
+
 ```sql
 ANALYZE your_table;
 ```
 
 ### Check for Lock Contention
+
 ```sql
 SELECT
   blocked_locks.pid AS blocked_pid,

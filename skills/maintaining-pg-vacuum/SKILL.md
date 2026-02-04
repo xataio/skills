@@ -1,21 +1,17 @@
 ---
-name: pg-vacuum-maintenance
-description: |
-  PostgreSQL vacuum and table maintenance skill. Use this skill when working with:
-  - VACUUM operations (regular, full, analyze)
-  - Autovacuum configuration and tuning
-  - Dead tuples and table bloat analysis
-  - Transaction ID wraparound prevention
-  - Table maintenance and space reclamation
-  - Monitoring vacuum progress and statistics
-  Triggers: vacuum, autovacuum, dead tuples, table bloat, maintenance, n_dead_tup, wraparound, pg_stat_user_tables
+name: maintaining-pg-vacuum
+description: PostgreSQL vacuum and table maintenance. Use when working with VACUUM operations, autovacuum configuration, dead tuples and table bloat analysis, transaction ID wraparound prevention, table maintenance, space reclamation, or monitoring vacuum progress and statistics.
 ---
 
 # PostgreSQL Vacuum and Maintenance
 
-## Overview
+## Prerequisites
 
-This skill provides comprehensive guidance for PostgreSQL vacuum operations and table maintenance. It covers monitoring vacuum statistics, configuring autovacuum, running manual vacuum commands, and troubleshooting common vacuum-related issues.
+**Required PostgreSQL version:** 9.6+ (pg_stat_progress_vacuum requires 9.6+)
+
+**No extensions required** - All queries use built-in system views (pg_stat_user_tables, pg_settings, pg_stat_progress_vacuum).
+
+**Note:** Autovacuum thresholds (e.g., 20% scale factor) are PostgreSQL defaults. This skill provides guidance on adjusting them for your workload.
 
 ## Understanding VACUUM
 
@@ -30,11 +26,11 @@ VACUUM is essential for PostgreSQL health and performs these critical functions:
 
 ### VACUUM Types
 
-| Type | Description | Locks | Use Case |
-|------|-------------|-------|----------|
-| `VACUUM` | Marks space for reuse, doesn't return to OS | No exclusive lock | Regular maintenance |
-| `VACUUM FULL` | Rewrites entire table, returns space to OS | **Exclusive lock** | Severe bloat recovery |
-| `VACUUM ANALYZE` | Vacuums and updates planner statistics | No exclusive lock | After bulk changes |
+| Type             | Description                                 | Locks              | Use Case              |
+| ---------------- | ------------------------------------------- | ------------------ | --------------------- |
+| `VACUUM`         | Marks space for reuse, doesn't return to OS | No exclusive lock  | Regular maintenance   |
+| `VACUUM FULL`    | Rewrites entire table, returns space to OS  | **Exclusive lock** | Severe bloat recovery |
+| `VACUUM ANALYZE` | Vacuums and updates planner statistics      | No exclusive lock  | After bulk changes    |
 
 ## Monitoring Vacuum Statistics
 
@@ -57,6 +53,7 @@ LIMIT 50;
 ```
 
 **What to look for:**
+
 - Tables with high `dead_tuples` count need attention
 - Tables where `last_vacuum` and `last_autovacuum` are NULL or very old
 - High `modifications_since_analyze` indicates stale statistics
@@ -97,15 +94,18 @@ JOIN pg_stat_activity a ON a.pid = p.pid;
 ### Default Trigger Formula
 
 Autovacuum triggers when:
+
 ```
 dead tuples > autovacuum_vacuum_threshold + (autovacuum_vacuum_scale_factor * live tuples)
 ```
 
 **Default values:**
+
 - `autovacuum_vacuum_threshold` = 50
 - `autovacuum_vacuum_scale_factor` = 0.2 (20%)
 
 **Example:** A table with 1,000,000 rows triggers autovacuum when dead tuples exceed:
+
 ```
 50 + (0.2 * 1,000,000) = 200,050 dead tuples
 ```
@@ -178,6 +178,7 @@ ALTER TABLE table_name RESET (
 **Symptoms:** Autovacuum takes hours, dead tuples keep accumulating
 
 **Solutions:**
+
 ```sql
 -- Check current work memory
 SHOW autovacuum_work_mem;
@@ -188,6 +189,7 @@ SET autovacuum_work_mem = '512MB';
 ```
 
 Also consider:
+
 - Increasing `autovacuum_max_workers` (default: 3)
 - Lowering `autovacuum_vacuum_cost_delay` to make vacuum more aggressive
 
@@ -196,7 +198,9 @@ Also consider:
 **Symptoms:** `n_dead_tup` keeps growing despite autovacuum running
 
 **Solutions:**
+
 1. Lower the scale factor for affected tables:
+
 ```sql
 ALTER TABLE problem_table SET (
   autovacuum_vacuum_scale_factor = 0.01  -- 1% threshold
@@ -204,6 +208,7 @@ ALTER TABLE problem_table SET (
 ```
 
 2. Increase autovacuum workers:
+
 ```sql
 -- In postgresql.conf
 autovacuum_max_workers = 5
@@ -214,6 +219,7 @@ autovacuum_max_workers = 5
 **Symptoms:** Table size much larger than actual data
 
 **Diagnosis:**
+
 ```sql
 -- Check table size vs estimated live data
 SELECT
@@ -226,6 +232,7 @@ WHERE relname = 'table_name';
 ```
 
 **Solution:** Schedule `VACUUM FULL` during maintenance window:
+
 ```sql
 -- During low-traffic period
 VACUUM FULL table_name;
@@ -238,6 +245,7 @@ VACUUM FULL table_name;
 **This is urgent!** PostgreSQL will shut down to prevent data corruption if not addressed.
 
 **Check wraparound status:**
+
 ```sql
 SELECT
   datname,
@@ -249,6 +257,7 @@ ORDER BY age(datfrozenxid) DESC;
 ```
 
 **Emergency response:**
+
 ```sql
 -- Run aggressive vacuum on affected tables
 VACUUM FREEZE table_name;
@@ -268,10 +277,46 @@ VACUUMDB --all --freeze
 
 ## Quick Reference
 
-| Command | Locks Table | Returns Space to OS | Updates Stats |
-|---------|-------------|---------------------|---------------|
-| `VACUUM` | No | No | No |
-| `VACUUM ANALYZE` | No | No | Yes |
-| `VACUUM FULL` | **Yes** | Yes | No |
-| `VACUUM FULL ANALYZE` | **Yes** | Yes | Yes |
-| `VACUUM FREEZE` | No | No | No |
+| Command               | Locks Table | Returns Space to OS | Updates Stats |
+| --------------------- | ----------- | ------------------- | ------------- |
+| `VACUUM`              | No          | No                  | No            |
+| `VACUUM ANALYZE`      | No          | No                  | Yes           |
+| `VACUUM FULL`         | **Yes**     | Yes                 | No            |
+| `VACUUM FULL ANALYZE` | **Yes**     | Yes                 | Yes           |
+| `VACUUM FREEZE`       | No          | No                  | No            |
+
+## Verification
+
+After vacuum operations, verify effectiveness:
+
+```sql
+-- Check dead tuples reduced
+SELECT schemaname, relname, n_dead_tup, last_vacuum, last_autovacuum
+FROM pg_stat_user_tables
+WHERE relname = 'your_table';
+```
+
+## Maintenance Summary Template
+
+After maintenance, provide a summary in this format:
+
+```
+## Vacuum Maintenance Summary
+
+**Tables Processed:** [Count]
+
+**Before/After:**
+| Table | Dead Tuples Before | Dead Tuples After | Size Change |
+|-------|-------------------|-------------------|-------------|
+| [tbl] | [before]          | [after]           | [change]    |
+
+**Autovacuum Settings Changed:**
+- [Table]: [setting change]
+
+**Issues Found:**
+- [Any wraparound warnings or other issues]
+
+**Recommendations:**
+1. [Recommendation]
+2. [Recommendation]
+```

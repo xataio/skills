@@ -1,17 +1,36 @@
 ---
-name: pg-slow-query-investigation
+name: investigating-pg-slow-queries
 description: Investigate and optimize slow PostgreSQL queries. Use when users mention slow queries, query optimization, EXPLAIN analysis, index recommendations, pg_stat_statements analysis, query performance issues, or need help understanding execution plans.
 ---
 
 # PostgreSQL Slow Query Investigation
 
-## Overview
+## Prerequisites
 
-This skill guides systematic investigation of slow PostgreSQL queries using pg_stat_statements, EXPLAIN analysis, and index recommendations. It helps identify performance bottlenecks and provides actionable DDL for optimization.
+**Required PostgreSQL version:** 9.6+ (GENERIC_PLAN requires 16+)
+
+**Required extensions:**
+
+- `pg_stat_statements` - **Required** for identifying slow queries. Enable with:
+  ```sql
+  CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+  ```
+  Also add to `shared_preload_libraries` in postgresql.conf and restart PostgreSQL.
+
+**Note:** The 2000ms slow query threshold is a default and should be adjusted based on your workload characteristics.
 
 ## Investigation Workflow
 
-Follow these steps in order to investigate slow queries:
+**Progress Checklist:**
+
+```
+- [ ] Step 1: Identify slow queries
+- [ ] Step 2: Select a query to investigate
+- [ ] Step 3: Understand the table structure
+- [ ] Step 4: Analyze the execution plan
+- [ ] Step 5: Recommend index improvements
+- [ ] Verify: Confirm query performance improved
+```
 
 ### Step 1: Identify Slow Queries
 
@@ -34,6 +53,7 @@ LIMIT 10;
 ### Step 2: Select a Query to Investigate
 
 Choose a query following these guidelines:
+
 - **Prefer SELECT queries** - avoid UPDATE, DELETE, INSERT
 - **Avoid introspection queries** - skip queries involving pg_catalog or information_schema
 - **Consider total impact** - high call count with moderate latency may be worse than rare slow queries
@@ -101,16 +121,16 @@ Based on the execution plan, provide specific DDL if a missing index is identifi
 
 ## EXPLAIN Plan Interpretation
 
-| Plan Node | Meaning | Action |
-|-----------|---------|--------|
-| **Seq Scan** | Full table scan | Likely needs an index on filter columns |
-| **Index Scan** | Using index, fetching rows from table | Good, but check if index-only scan possible |
-| **Index Only Scan** | Data retrieved from index alone | Optimal for the columns involved |
-| **Bitmap Heap Scan** | Multiple index conditions combined | Generally efficient for OR conditions |
-| **Nested Loop** | Row-by-row join | Can be slow for large datasets; check join conditions |
-| **Hash Join** | Hash table built for join | Good for large table joins |
-| **Merge Join** | Sorted merge of two inputs | Efficient when inputs are pre-sorted |
-| **Sort** | Explicit sort operation | Consider index on ORDER BY columns |
+| Plan Node            | Meaning                               | Action                                                |
+| -------------------- | ------------------------------------- | ----------------------------------------------------- |
+| **Seq Scan**         | Full table scan                       | Likely needs an index on filter columns               |
+| **Index Scan**       | Using index, fetching rows from table | Good, but check if index-only scan possible           |
+| **Index Only Scan**  | Data retrieved from index alone       | Optimal for the columns involved                      |
+| **Bitmap Heap Scan** | Multiple index conditions combined    | Generally efficient for OR conditions                 |
+| **Nested Loop**      | Row-by-row join                       | Can be slow for large datasets; check join conditions |
+| **Hash Join**        | Hash table built for join             | Good for large table joins                            |
+| **Merge Join**       | Sorted merge of two inputs            | Efficient when inputs are pre-sorted                  |
+| **Sort**             | Explicit sort operation               | Consider index on ORDER BY columns                    |
 
 ### Red Flags to Watch For
 
@@ -170,6 +190,22 @@ After investigation, provide a summary in this format:
 [Estimate of improvement - e.g., "Expected to reduce query time from ~5s to <100ms by enabling index scan"]
 ```
 
+## Verification
+
+After applying index or query changes, verify improvement:
+
+```sql
+-- Re-run the slow query check
+SELECT queryid, calls, round(mean_exec_time) as mean_ms
+FROM pg_stat_statements
+WHERE queryid = 'your_queryid';
+
+-- Or run EXPLAIN ANALYZE on the optimized query
+EXPLAIN ANALYZE SELECT ...;
+```
+
+Compare before/after execution times to confirm improvement.
+
 ## References
 
-See `references/sql_queries.md` for complete SQL query templates and additional examples.
+See `references/query_analysis_queries.md` for complete SQL query templates and additional examples.

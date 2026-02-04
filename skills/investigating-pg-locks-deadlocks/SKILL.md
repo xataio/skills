@@ -1,31 +1,28 @@
 ---
-name: pg-locks-deadlocks
-description: |
-  PostgreSQL Lock and Deadlock Investigation skill. Use this skill when users ask about:
-  - Lock contention or blocking queries
-  - Deadlock detection and resolution
-  - Queries waiting for locks
-  - Finding what is blocking a query
-  - Lock timeout issues
-  - Understanding PostgreSQL lock types
-  - Resolving stuck or hanging queries
-  - Transaction blocking problems
-  - "Lock:relation", "Lock:tuple", "Lock:transactionid" wait events
+name: investigating-pg-locks-deadlocks
+description: PostgreSQL lock and deadlock investigation. Use when users ask about lock contention, blocking queries, deadlock detection, queries waiting for locks, lock timeout issues, PostgreSQL lock types, stuck or hanging queries, transaction blocking, or Lock:relation/Lock:tuple/Lock:transactionid wait events.
 ---
 
 # PostgreSQL Locks and Deadlocks
 
-## Overview
+## Prerequisites
 
-This skill provides comprehensive guidance for detecting, analyzing, and resolving PostgreSQL lock contention and deadlocks. Lock issues are a common cause of application slowdowns and query timeouts in PostgreSQL databases.
+**Required PostgreSQL version:** 9.6+
+
+**No extensions required** - All queries use built-in system views (pg_stat_activity, pg_locks, pg_settings).
 
 ## Quick Diagnosis Workflow
 
-1. **Check for blocked queries** - Identify queries waiting for locks
-2. **Identify the blocker** - Find which query/transaction is holding the lock
-3. **Assess impact** - Determine how long queries have been blocked
-4. **Resolve** - Either wait, cancel the blocker, or terminate the blocking session
-5. **Prevent recurrence** - Implement best practices
+**Progress Checklist:**
+
+```
+- [ ] Step 1: Check for blocked queries
+- [ ] Step 2: Identify the blocker
+- [ ] Step 3: Assess impact (duration)
+- [ ] Step 4: Resolve (wait/cancel/terminate)
+- [ ] Step 5: Prevent recurrence
+- [ ] Verify: Confirm locks released
+```
 
 ## Detecting Blocked Queries
 
@@ -62,6 +59,7 @@ SELECT * FROM blocked_queries ORDER BY blocked_duration DESC;
 ```
 
 **Output interpretation:**
+
 - `blocked_pid`: The process waiting for a lock
 - `blocked_query`: The query that is waiting
 - `blocking_pid`: The process holding the lock
@@ -84,6 +82,7 @@ ORDER BY duration DESC;
 ```
 
 **Key wait events indicating lock issues:**
+
 - `Lock:relation` - Waiting for a table-level lock
 - `Lock:tuple` - Waiting for a row-level lock
 - `Lock:transactionid` - Waiting for another transaction to complete
@@ -109,16 +108,16 @@ ORDER BY l.relation;
 
 PostgreSQL uses various lock modes with increasing levels of exclusivity:
 
-| Lock Mode | Acquired By | Conflicts With |
-|-----------|-------------|----------------|
-| **AccessShareLock** | SELECT | AccessExclusiveLock |
-| **RowShareLock** | SELECT FOR UPDATE/SHARE | ExclusiveLock, AccessExclusiveLock |
-| **RowExclusiveLock** | INSERT, UPDATE, DELETE | ShareLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock |
-| **ShareUpdateExclusiveLock** | VACUUM, ANALYZE, CREATE INDEX CONCURRENTLY | ShareUpdateExclusiveLock, ShareLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock |
-| **ShareLock** | CREATE INDEX (non-concurrent) | RowExclusiveLock, ShareUpdateExclusiveLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock |
-| **ShareRowExclusiveLock** | CREATE TRIGGER | RowExclusiveLock, ShareUpdateExclusiveLock, ShareLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock |
-| **ExclusiveLock** | REFRESH MATERIALIZED VIEW CONCURRENTLY | RowShareLock and above |
-| **AccessExclusiveLock** | DROP, ALTER TABLE, TRUNCATE, REINDEX, VACUUM FULL | All lock modes |
+| Lock Mode                    | Acquired By                                       | Conflicts With                                                                                                   |
+| ---------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **AccessShareLock**          | SELECT                                            | AccessExclusiveLock                                                                                              |
+| **RowShareLock**             | SELECT FOR UPDATE/SHARE                           | ExclusiveLock, AccessExclusiveLock                                                                               |
+| **RowExclusiveLock**         | INSERT, UPDATE, DELETE                            | ShareLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock                                             |
+| **ShareUpdateExclusiveLock** | VACUUM, ANALYZE, CREATE INDEX CONCURRENTLY        | ShareUpdateExclusiveLock, ShareLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock                   |
+| **ShareLock**                | CREATE INDEX (non-concurrent)                     | RowExclusiveLock, ShareUpdateExclusiveLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock            |
+| **ShareRowExclusiveLock**    | CREATE TRIGGER                                    | RowExclusiveLock, ShareUpdateExclusiveLock, ShareLock, ShareRowExclusiveLock, ExclusiveLock, AccessExclusiveLock |
+| **ExclusiveLock**            | REFRESH MATERIALIZED VIEW CONCURRENTLY            | RowShareLock and above                                                                                           |
+| **AccessExclusiveLock**      | DROP, ALTER TABLE, TRUNCATE, REINDEX, VACUUM FULL | All lock modes                                                                                                   |
 
 **Key insight:** `AccessExclusiveLock` blocks ALL other operations including SELECT. Operations like `ALTER TABLE`, `DROP TABLE`, `TRUNCATE`, and `VACUUM FULL` require this lock.
 
@@ -155,11 +154,13 @@ PostgreSQL automatically detects and resolves deadlocks by terminating one of th
 ### Check Logs for Deadlocks
 
 Look for messages containing:
+
 ```
 deadlock detected
 ```
 
 The log will show:
+
 - Which processes were involved
 - What queries they were running
 - What locks they were waiting for
@@ -222,9 +223,11 @@ ALTER DATABASE mydb SET idle_in_transaction_session_timeout = '300s';
    - Higher isolation levels increase lock contention
 
 4. **Set idle_in_transaction_session_timeout**
+
    ```sql
    SET idle_in_transaction_session_timeout = '5min';
    ```
+
    - Automatically terminates sessions idle in an open transaction
 
 5. **Index foreign key columns**
@@ -232,6 +235,7 @@ ALTER DATABASE mydb SET idle_in_transaction_session_timeout = '300s';
    - With indexes, only affected rows are locked
 
 6. **Use CONCURRENTLY for index operations**
+
    ```sql
    CREATE INDEX CONCURRENTLY idx_name ON table(column);
    REINDEX INDEX CONCURRENTLY idx_name;
@@ -254,6 +258,7 @@ ALTER DATABASE mydb SET idle_in_transaction_session_timeout = '300s';
 **Problem:** `ALTER TABLE` needs `AccessExclusiveLock` but SELECT queries hold `AccessShareLock`
 
 **Solution:**
+
 1. Identify the blocking queries
 2. Wait for them to complete or cancel them
 3. Consider using `lock_timeout` on the ALTER to avoid blocking new queries
@@ -263,6 +268,7 @@ ALTER DATABASE mydb SET idle_in_transaction_session_timeout = '300s';
 **Problem:** Large UPDATE locks many rows, blocking application queries
 
 **Solution:**
+
 1. Break into smaller batches with commits between
 2. Add small delays between batches
 3. Run during low-traffic periods
@@ -272,10 +278,46 @@ ALTER DATABASE mydb SET idle_in_transaction_session_timeout = '300s';
 **Problem:** Application frequently sees deadlock errors
 
 **Solution:**
+
 1. Analyze the queries involved (check logs)
 2. Ensure consistent table access order
 3. Consider reducing transaction scope
 4. Index foreign key columns
+
+## Verification
+
+After resolving locks, verify the issue is resolved:
+
+```sql
+-- Confirm no blocked queries remain
+SELECT count(*) as blocked_count
+FROM pg_stat_activity
+WHERE wait_event_type = 'Lock';
+```
+
+## Investigation Summary Template
+
+After investigation, provide a summary in this format:
+
+```
+## Lock Investigation Summary
+
+**Lock Status:** [Resolved / Ongoing]
+
+**Blocked Queries Found:** [Count]
+**Blocking Sessions:** [Count]
+**Longest Wait:** [Duration]
+
+**Root Cause:**
+[What caused the lock contention]
+
+**Resolution:**
+- [Action taken]
+
+**Prevention Recommendations:**
+1. [Recommendation]
+2. [Recommendation]
+```
 
 ## References
 
