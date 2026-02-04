@@ -28,7 +28,7 @@ FROM pg_roles ORDER BY rolname;
 ```sql
 -- Login user
 CREATE ROLE app_user WITH LOGIN PASSWORD 'secure_password'
-    CONNECTION LIMIT 10 VALID UNTIL '2025-12-31';
+    CONNECTION LIMIT 10 VALID UNTIL 'YYYY-MM-DD';  -- Set appropriate expiry
 
 -- Group role (no login)
 CREATE ROLE app_readers NOLOGIN;
@@ -42,7 +42,7 @@ GRANT app_readers TO app_user;
 
 ```sql
 ALTER ROLE app_user WITH PASSWORD 'new_password';
-ALTER ROLE app_user VALID UNTIL '2025-06-30';
+ALTER ROLE app_user VALID UNTIL 'YYYY-MM-DD';  -- Set appropriate expiry
 ALTER ROLE risky_admin NOSUPERUSER;
 ALTER ROLE app_user CONNECTION LIMIT 5;
 ```

@@ -98,7 +98,7 @@ Add to postgresql.conf:
 
 ```
 restore_command = 'cp /archive/wal/%f %p'
-recovery_target_time = '2024-01-15 14:30:00'
+recovery_target_time = 'YYYY-MM-DD HH:MM:SS'  -- e.g., '2024-01-15 14:30:00'
 recovery_target_action = 'promote'
 ```
 

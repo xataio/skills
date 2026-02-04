@@ -1,6 +1,6 @@
 ---
 name: managing-postgresql
-description: PostgreSQL database administration and troubleshooting. Use for any PostgreSQL issue including slow queries, high CPU, memory pressure, connection problems, locks, deadlocks, disk space, vacuum, autovacuum, table bloat, index optimization, performance tuning, backup, recovery, pg_dump, replication, replication lag, failover, security, permissions, pg_hba.conf, or general database health monitoring.
+description: Diagnoses and troubleshoots PostgreSQL database issues including slow queries, high CPU, memory pressure, connection problems, locks, deadlocks, disk space, vacuum, autovacuum, table bloat, index optimization, performance tuning, backup, recovery, pg_dump, replication, replication lag, failover, security, permissions, pg_hba.conf, and general database health monitoring. Triggers when users mention PostgreSQL problems, database performance issues, or any database administration tasks.
 ---
 
 # Managing PostgreSQL
