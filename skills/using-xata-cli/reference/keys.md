@@ -93,6 +93,7 @@ XATA_API_KEY=xau_xxxxxxxxxxxxx
 ### CI/CD Setup
 
 1. Create a dedicated key:
+
    ```bash
    xata keys user create github-actions
    ```

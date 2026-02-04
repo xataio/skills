@@ -65,15 +65,15 @@ xata branch create <name> \
   --inactivity-period <minutes>
 ```
 
-| Option               | Description                              |
-| -------------------- | ---------------------------------------- |
-| `--region`           | AWS region (e.g., `us-east-1`)           |
-| `--instance-type`    | Size: `small`, `medium`, `large`         |
-| `--replicas`         | Read replicas count (0-4)                |
-| `--parent`           | Create as child of another branch        |
-| `--postgres-version` | PostgreSQL version                       |
-| `--scale-to-zero`    | Enable scale-to-zero for cost savings    |
-| `--inactivity-period`| Minutes before scaling to zero           |
+| Option                | Description                           |
+| --------------------- | ------------------------------------- |
+| `--region`            | AWS region (e.g., `us-east-1`)        |
+| `--instance-type`     | Size: `small`, `medium`, `large`      |
+| `--replicas`          | Read replicas count (0-4)             |
+| `--parent`            | Create as child of another branch     |
+| `--postgres-version`  | PostgreSQL version                    |
+| `--scale-to-zero`     | Enable scale-to-zero for cost savings |
+| `--inactivity-period` | Minutes before scaling to zero        |
 
 ### Example: Feature Branch
 

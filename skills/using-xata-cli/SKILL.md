@@ -9,15 +9,15 @@ description: Manages Xata serverless PostgreSQL databases via the xata CLI. Trig
 
 **What do you need to do?**
 
-| Task                                    | Reference                                        |
-| --------------------------------------- | ------------------------------------------------ |
-| Login, switch profiles, manage tokens   | [reference/auth.md](reference/auth.md)           |
-| Create, configure, or link projects     | [reference/projects.md](reference/projects.md)   |
-| Create, checkout, or delete branches    | [reference/branches.md](reference/branches.md)   |
-| Schema migrations with pgroll           | [reference/migrations.md](reference/migrations.md) |
-| Manage organizations and team members   | [reference/organizations.md](reference/organizations.md) |
-| Create or manage API keys               | [reference/keys.md](reference/keys.md)           |
-| Clone databases with anonymization      | [reference/clone.md](reference/clone.md)         |
+| Task                                  | Reference                                                |
+| ------------------------------------- | -------------------------------------------------------- |
+| Login, switch profiles, manage tokens | [reference/auth.md](reference/auth.md)                   |
+| Create, configure, or link projects   | [reference/projects.md](reference/projects.md)           |
+| Create, checkout, or delete branches  | [reference/branches.md](reference/branches.md)           |
+| Schema migrations with pgroll         | [reference/migrations.md](reference/migrations.md)       |
+| Manage organizations and team members | [reference/organizations.md](reference/organizations.md) |
+| Create or manage API keys             | [reference/keys.md](reference/keys.md)                   |
+| Clone databases with anonymization    | [reference/clone.md](reference/clone.md)                 |
 
 ## Prerequisites
 

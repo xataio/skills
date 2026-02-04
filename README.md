@@ -22,21 +22,21 @@ Diagnoses and troubleshoots PostgreSQL database issues including slow queries, h
 npx skills add xataio/skills/skills/managing-postgresql
 ```
 
-| Reference | Description |
-| --------- | ----------- |
-| [monitoring](skills/managing-postgresql/reference/monitoring.md) | Health checks, metrics review |
+| Reference                                                            | Description                   |
+| -------------------------------------------------------------------- | ----------------------------- |
+| [monitoring](skills/managing-postgresql/reference/monitoring.md)     | Health checks, metrics review |
 | [slow-queries](skills/managing-postgresql/reference/slow-queries.md) | Query analysis, EXPLAIN plans |
-| [high-cpu](skills/managing-postgresql/reference/high-cpu.md) | CPU investigation |
-| [memory](skills/managing-postgresql/reference/memory.md) | Memory pressure, OOM |
-| [connections](skills/managing-postgresql/reference/connections.md) | Connection management |
-| [locks](skills/managing-postgresql/reference/locks.md) | Locks and deadlocks |
-| [disk-space](skills/managing-postgresql/reference/disk-space.md) | Storage management |
-| [vacuum](skills/managing-postgresql/reference/vacuum.md) | Vacuum, autovacuum, bloat |
-| [indexes](skills/managing-postgresql/reference/indexes.md) | Index optimization |
-| [tuning](skills/managing-postgresql/reference/tuning.md) | Configuration tuning |
-| [backup](skills/managing-postgresql/reference/backup.md) | Backup and recovery |
-| [replication](skills/managing-postgresql/reference/replication.md) | Replication, failover |
-| [security](skills/managing-postgresql/reference/security.md) | Access control, permissions |
+| [high-cpu](skills/managing-postgresql/reference/high-cpu.md)         | CPU investigation             |
+| [memory](skills/managing-postgresql/reference/memory.md)             | Memory pressure, OOM          |
+| [connections](skills/managing-postgresql/reference/connections.md)   | Connection management         |
+| [locks](skills/managing-postgresql/reference/locks.md)               | Locks and deadlocks           |
+| [disk-space](skills/managing-postgresql/reference/disk-space.md)     | Storage management            |
+| [vacuum](skills/managing-postgresql/reference/vacuum.md)             | Vacuum, autovacuum, bloat     |
+| [indexes](skills/managing-postgresql/reference/indexes.md)           | Index optimization            |
+| [tuning](skills/managing-postgresql/reference/tuning.md)             | Configuration tuning          |
+| [backup](skills/managing-postgresql/reference/backup.md)             | Backup and recovery           |
+| [replication](skills/managing-postgresql/reference/replication.md)   | Replication, failover         |
+| [security](skills/managing-postgresql/reference/security.md)         | Access control, permissions   |
 
 ### using-xata-cli
 
@@ -46,15 +46,15 @@ Manages Xata serverless PostgreSQL databases via the xata CLI. Covers authentica
 npx skills add xataio/skills/skills/using-xata-cli
 ```
 
-| Reference | Description |
-| --------- | ----------- |
-| [auth](skills/using-xata-cli/reference/auth.md) | Login, profiles, tokens |
-| [projects](skills/using-xata-cli/reference/projects.md) | Project setup, configuration |
-| [branches](skills/using-xata-cli/reference/branches.md) | Branch management, URLs |
-| [migrations](skills/using-xata-cli/reference/migrations.md) | Schema migrations (pgroll) |
-| [organizations](skills/using-xata-cli/reference/organizations.md) | Team and org management |
-| [keys](skills/using-xata-cli/reference/keys.md) | API key management |
-| [clone](skills/using-xata-cli/reference/clone.md) | Database cloning |
+| Reference                                                         | Description                  |
+| ----------------------------------------------------------------- | ---------------------------- |
+| [auth](skills/using-xata-cli/reference/auth.md)                   | Login, profiles, tokens      |
+| [projects](skills/using-xata-cli/reference/projects.md)           | Project setup, configuration |
+| [branches](skills/using-xata-cli/reference/branches.md)           | Branch management, URLs      |
+| [migrations](skills/using-xata-cli/reference/migrations.md)       | Schema migrations (pgroll)   |
+| [organizations](skills/using-xata-cli/reference/organizations.md) | Team and org management      |
+| [keys](skills/using-xata-cli/reference/keys.md)                   | API key management           |
+| [clone](skills/using-xata-cli/reference/clone.md)                 | Database cloning             |
 
 ## Contributing
 

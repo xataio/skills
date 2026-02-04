@@ -15,6 +15,7 @@ Clone databases with optional anonymization.
 ## Overview
 
 Xata clone allows you to:
+
 - Copy database structure and data between branches
 - Anonymize sensitive data during copy
 - Generate anonymization configs with AI assistance
@@ -34,6 +35,7 @@ xata clone config --mode ai
 ```
 
 This creates a configuration file defining:
+
 - Tables to include/exclude
 - Columns to anonymize
 - Anonymization strategies (fake data, masking, etc.)
@@ -49,12 +51,12 @@ xata clone start \
 
 ### Options
 
-| Option       | Description                           |
-| ------------ | ------------------------------------- |
-| `--source`   | Source branch to clone from           |
-| `--target`   | Target branch to clone to             |
-| `--config`   | Path to configuration file            |
-| `--copy-roles` | Also copy database roles            |
+| Option         | Description                 |
+| -------------- | --------------------------- |
+| `--source`     | Source branch to clone from |
+| `--target`     | Target branch to clone to   |
+| `--config`     | Path to configuration file  |
+| `--copy-roles` | Also copy database roles    |
 
 ### Example
 
@@ -97,14 +99,14 @@ Example `anonymize.json`:
 
 ### Anonymization Strategies
 
-| Strategy      | Description                              |
-| ------------- | ---------------------------------------- |
-| `fake_email`  | Generate fake email address              |
-| `fake_name`   | Generate fake name                       |
-| `fake_phone`  | Generate fake phone number               |
-| `mask`        | Mask characters (e.g., `****1234`)       |
-| `null`        | Replace with NULL                        |
-| `constant`    | Replace with constant value              |
+| Strategy     | Description                        |
+| ------------ | ---------------------------------- |
+| `fake_email` | Generate fake email address        |
+| `fake_name`  | Generate fake name                 |
+| `fake_phone` | Generate fake phone number         |
+| `mask`       | Mask characters (e.g., `****1234`) |
+| `null`       | Replace with NULL                  |
+| `constant`   | Replace with constant value        |
 
 ## Common Patterns
 
