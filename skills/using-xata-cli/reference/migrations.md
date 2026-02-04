@@ -2,6 +2,20 @@
 
 PostgreSQL schema migrations using pgroll.
 
+## Contents
+
+- [Initialize](#initialize)
+- [Migration Workflow](#migration-workflow)
+- [Quick Migrate](#quick-migrate)
+- [Check Status](#check-status)
+- [Baseline Existing Database](#baseline-existing-database)
+- [Pull Current Schema](#pull-current-schema)
+- [View Latest](#view-latest)
+- [Update Migration](#update-migration)
+- [Convert Formats](#convert-formats)
+- [Common Migration Operations](#common-migration-operations)
+- [Common Issues](#common-issues)
+
 ## Initialize
 
 Set up migrations directory structure:
@@ -189,10 +203,16 @@ xata roll convert <input-file> --format <format>
 }
 ```
 
-## Troubleshooting
+## Common Issues
 
-**Migration stuck**: Check status with `xata roll status`, then either `complete` or `rollback`
+**Migration stuck:** Check status with `xata roll status`, then either `complete` or `rollback`
 
-**Schema conflict**: Pull latest with `xata roll pull` and compare with your migration
+**Schema conflict:** Pull latest with `xata roll pull` and compare with your migration
 
-**Rollback failed**: Check database state, may need manual intervention
+**Rollback failed:** Check database state, may need manual intervention
+
+**"Migration already in progress":** Complete or rollback the existing migration with `xata roll complete` or `xata roll rollback`
+
+**Invalid migration file:** Validate JSON syntax. Check operation names match pgroll schema (e.g., `create_table`, `add_column`)
+
+**Migration not found:** Ensure file path is correct. Run `xata roll init` if migrations directory doesn't exist

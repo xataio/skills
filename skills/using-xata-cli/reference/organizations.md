@@ -4,6 +4,17 @@ Manage organizations and team members.
 
 **Alias:** `org`
 
+## Contents
+
+- [List Organizations](#list-organizations)
+- [View Organization Details](#view-organization-details)
+- [Create Organization](#create-organization)
+- [Delete Organization](#delete-organization)
+- [Team Members](#team-members)
+- [Invitations](#invitations)
+- [Common Patterns](#common-patterns)
+- [Common Issues](#common-issues)
+
 ## List Organizations
 
 ```bash
@@ -154,3 +165,13 @@ xata org invitations list
 ```bash
 xata org members remove developer@company.com
 ```
+
+## Common Issues
+
+**"Organization not found":** Check organization ID with `xata org list`. Use `--organization <id>` to specify.
+
+**Invitation not received:** Check spam folder. Resend with `xata org invitations resend <invitation-id>`.
+
+**Cannot remove member:** Verify you have admin permissions. Cannot remove the last admin.
+
+**Wrong organization context:** Use `--organization <id>` flag or switch profile with `xata auth switch <profile>`.

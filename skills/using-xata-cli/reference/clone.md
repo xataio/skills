@@ -2,6 +2,16 @@
 
 Clone databases with optional anonymization.
 
+## Contents
+
+- [Overview](#overview)
+- [Generate Configuration](#generate-configuration)
+- [Start Clone](#start-clone)
+- [Validate Clone](#validate-clone)
+- [Configuration File Format](#configuration-file-format)
+- [Common Patterns](#common-patterns)
+- [Common Issues](#common-issues)
+
 ## Overview
 
 Xata clone allows you to:
@@ -122,10 +132,16 @@ xata clone start \
   --target dev-feature
 ```
 
-## Troubleshooting
+## Common Issues
 
-**Clone stuck**: Check progress with `xata clone stream`
+**Clone stuck:** Check progress with `xata clone stream`
 
-**Data mismatch**: Validate with `xata clone stream --validate`
+**Data mismatch:** Validate with `xata clone stream --validate`
 
-**Missing tables**: Check config file for excluded tables
+**Missing tables:** Check config file for `"exclude": true` on tables
+
+**Invalid anonymization strategy:** Verify strategy name matches supported options (fake_email, fake_name, mask, null, constant)
+
+**Source branch not found:** Verify branch name with `xata branch list`. Check project context with `xata status`.
+
+**Target branch already exists:** Delete existing branch first or use a different name

@@ -2,6 +2,18 @@
 
 Create and manage Xata projects.
 
+## Contents
+
+- [Initialize Project](#initialize-project)
+- [List Projects](#list-projects)
+- [View Project Details](#view-project-details)
+- [Create Project](#create-project)
+- [Delete Project](#delete-project)
+- [Project Configuration](#project-configuration)
+- [Backups](#backups)
+- [Local Configuration Files](#local-configuration-files)
+- [Common Issues](#common-issues)
+
 ## Initialize Project
 
 Link current directory to a Xata project:
@@ -138,3 +150,15 @@ xata status
 ```
 
 Shows current project, branch, and authentication status.
+
+## Common Issues
+
+**"Project not found":** Run `xata project init` to link to a project. Verify project ID with `xata project list`.
+
+**"Not authenticated":** Run `xata auth login` before project operations.
+
+**Wrong project context:** Use `--project <id>` flag or run `xata project init` to switch projects.
+
+**Cannot delete project:** Ensure all branches are deleted first. Use `--force` to skip confirmation.
+
+**Init creates wrong config:** Delete `.xata/` directory and run `xata project init` again with explicit `--project` flag.

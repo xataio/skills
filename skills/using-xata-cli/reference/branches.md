@@ -2,6 +2,20 @@
 
 Manage database branches with cluster configuration.
 
+## Contents
+
+- [List Branches](#list-branches)
+- [View Branch Details](#view-branch-details)
+- [Create Branch](#create-branch)
+- [Switch Branch](#switch-branch)
+- [Get Connection String](#get-connection-string)
+- [Wait for Branch Ready](#wait-for-branch-ready)
+- [Delete Branch](#delete-branch)
+- [Branch Hierarchy](#branch-hierarchy)
+- [Branch Configuration](#branch-configuration)
+- [Common Patterns](#common-patterns)
+- [Common Issues](#common-issues)
+
 ## List Branches
 
 ```bash
@@ -173,3 +187,15 @@ xata branch list --json | jq -r '.[].name'
 # Delete specific branch
 xata branch delete old-feature --force
 ```
+
+## Common Issues
+
+**"Branch not found":** Verify branch name with `xata branch list`. Branch names are case-sensitive.
+
+**Branch creation fails:** Check available regions with `xata regions list`. Verify project context with `xata status`.
+
+**wait-ready times out:** Increase timeout with `--timeout 600`. Check branch health with `xata branch describe --branch <name>`.
+
+**Cannot delete branch:** Ensure branch is not the default. Use `--force` to skip confirmation.
+
+**Connection string not working:** Verify branch is healthy with `xata branch describe`. Check if branch has scaled to zero.

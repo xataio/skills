@@ -1,6 +1,6 @@
 ---
 name: using-xata-cli
-description: Manages Xata serverless PostgreSQL databases via the xata CLI. Use when working with Xata projects, branches, organizations, authentication, schema migrations (pgroll), data cloning, or AI-powered SQL. Triggers on xata commands, database branch management, project setup, schema migrations, team management, connection strings, or any Xata database administration tasks.
+description: Manages Xata serverless PostgreSQL databases via the xata CLI. Triggers when working with Xata projects, branches, organizations, authentication, schema migrations (pgroll), data cloning, or AI-powered SQL generation. Handles xata commands, database branch management, project setup, team management, connection strings, and database administration tasks.
 ---
 
 # Using Xata CLI
@@ -21,7 +21,15 @@ description: Manages Xata serverless PostgreSQL databases via the xata CLI. Use 
 
 ## Prerequisites
 
-**Required:** Xata CLI installed (`npm install -g @xata.io/cli` or via Bun)
+**Required:** Xata CLI installed
+
+```bash
+# Install via npm
+npm install -g @xata.io/cli
+
+# Verify installation
+xata version
+```
 
 **Note:** Commands support `--json` flag for machine-readable output. Use `--profile <name>` to switch between authenticated profiles.
 
@@ -104,10 +112,12 @@ Copy this checklist and track progress:
 ```
 - [ ] Verify current branch: xata status
 - [ ] Create new branch: xata branch create <name> --region <region>
-- [ ] Wait for health: xata branch wait-ready
+- [ ] Wait for health: xata branch wait-ready --timeout 300
 - [ ] Switch to branch: xata branch checkout <name>
 - [ ] Get connection string: xata branch url
 ```
+
+**If wait-ready times out:** Check branch status with `xata branch describe --branch <name>` and verify the region is valid.
 
 **Details:** [reference/branches.md](reference/branches.md)
 
@@ -124,6 +134,8 @@ Copy this checklist and track progress:
 - [ ] Complete migration: xata roll complete
 - [ ] If issues: xata roll rollback
 ```
+
+**If migration fails:** Check `xata roll status` for error details. Rollback with `xata roll rollback` before retrying.
 
 **Details:** [reference/migrations.md](reference/migrations.md)
 
@@ -151,20 +163,9 @@ Copy this checklist and track progress:
 - [ ] Validate: xata clone stream --validate
 ```
 
+**If clone fails:** Check config file for excluded tables. Validate with `xata clone stream --validate` for detailed errors.
+
 **Details:** [reference/clone.md](reference/clone.md)
-
-## Key Commands Summary
-
-| Category     | Commands                                                        |
-| ------------ | --------------------------------------------------------------- |
-| Auth         | `login`, `logout`, `status`, `switch`, `list`, `access-token`   |
-| Project      | `init`, `list`, `describe`, `create`, `delete`, `backup`        |
-| Branch       | `list`, `create`, `delete`, `checkout`, `url`, `wait-ready`     |
-| Organization | `list`, `describe`, `create`, `members`, `invitations`          |
-| Keys         | `user list/create/delete`, `org list/create/delete`             |
-| Roll         | `init`, `start`, `status`, `complete`, `rollback`, `migrate`    |
-| Clone        | `start`, `config`, `stream`                                     |
-| Utility      | `status`, `version`, `upgrade`, `ai sql`                        |
 
 ## Output Formats
 
@@ -173,3 +174,15 @@ All commands output human-readable tables by default. Add `--json` for machine-r
 ```bash
 xata branch list --json | jq '.[] | .name'
 ```
+
+## Common Issues
+
+**"Not authenticated":** Run `xata auth login`
+
+**"Project not found":** Run `xata project init` or check `xata status`
+
+**"Branch not found":** Verify branch name with `xata branch list`
+
+**Command hangs:** Check network connectivity; try `xata status` first
+
+**Wrong organization/project:** Use `--profile`, `--organization`, or `--project` flags to override defaults
