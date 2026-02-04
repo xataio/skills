@@ -1,5 +1,19 @@
 # Security and Access Control
 
+## Contents
+
+- [Audit Roles](#audit-roles)
+- [Create Roles](#create-roles)
+- [Modify Roles](#modify-roles)
+- [Drop Roles](#drop-roles)
+- [pg_hba.conf](#pg_hbaconf)
+- [SSL/TLS](#ssltls)
+- [Object Permissions](#object-permissions)
+- [Column-Level Permissions](#column-level-permissions)
+- [Row-Level Security (RLS)](#row-level-security-rls)
+- [Audit Logging](#audit-logging-postgresqlconf)
+- [Security Checklist](#security-checklist)
+
 **Note:** SQL queries run remotely; pg_hba.conf/SSL require server access or cloud console.
 
 ## Audit Roles

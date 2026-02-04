@@ -1,5 +1,16 @@
 # Replication Troubleshooting
 
+## Contents
+
+- [Replication Types](#replication-types)
+- [Check Status on Primary](#check-status-on-primary)
+- [Check Status on Replica](#check-status-on-replica)
+- [Replication Slots](#replication-slots)
+- [Common Issues](#common-issues)
+- [Failover](#failover)
+- [Logical Replication](#logical-replication)
+- [Key Settings](#key-settings)
+
 **Note:** SQL queries run remotely; log checks require server access.
 
 ## Replication Types

@@ -1,5 +1,15 @@
 # PostgreSQL Health Monitoring
 
+## Contents
+
+- [Quick Health Check](#quick-health-check)
+- [Slow Query Check](#slow-query-check-requires-pg_stat_statements)
+- [Table Health](#table-health)
+- [Index Health](#index-health)
+- [Replication Status](#replication-status-run-on-primary)
+- [Configuration Check](#configuration-check)
+- [Health Thresholds](#health-thresholds)
+
 ## Quick Health Check
 
 ```sql
@@ -42,7 +52,7 @@ SELECT
     schemaname || '.' || relname AS table_name,
     pg_size_pretty(pg_total_relation_size(relid)) AS size,
     n_live_tup AS live_rows,
-    n_dead_tup AS dead_rows,
+    n_dead_tup AS dead_tuples,
     CASE WHEN n_live_tup > 0 THEN round(100.0 * n_dead_tup / n_live_tup, 2) ELSE 0 END AS dead_pct,
     last_vacuum,
     last_autovacuum

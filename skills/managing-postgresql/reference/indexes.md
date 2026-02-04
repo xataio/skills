@@ -1,5 +1,18 @@
 # Index Management
 
+## Contents
+
+- [Index Overview](#index-overview)
+- [Find Unused Indexes](#find-unused-indexes)
+- [Find Missing Indexes](#find-missing-indexes)
+- [Index Bloat](#index-bloat-requires-pgstattuple)
+- [Create Indexes](#create-indexes)
+- [Rebuild Indexes](#rebuild-indexes)
+- [Drop Indexes](#drop-indexes)
+- [Index Strategy Tips](#index-strategy-tips)
+- [Why Index Not Used?](#why-index-not-used)
+- [Find Invalid Indexes](#find-invalid-indexes)
+
 ## Index Overview
 
 ```sql

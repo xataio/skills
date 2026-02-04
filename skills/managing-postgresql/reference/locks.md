@@ -1,5 +1,17 @@
 # Locks and Deadlocks
 
+## Contents
+
+- [Find Blocked Queries](#find-blocked-queries)
+- [Quick Lock Check](#quick-lock-check)
+- [Resolve Locks](#resolve-locks)
+- [Lock Types](#lock-types)
+- [Configure Timeouts](#configure-timeouts)
+- [Enable Lock Wait Logging](#enable-lock-wait-logging)
+- [Deadlock Detection](#deadlock-detection)
+- [Prevention Best Practices](#prevention-best-practices)
+- [Common Scenarios](#common-scenarios)
+
 ## Find Blocked Queries
 
 ```sql

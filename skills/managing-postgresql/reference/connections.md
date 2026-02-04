@@ -1,5 +1,16 @@
 # Connection Management
 
+## Contents
+
+- [Check Connection Status](#check-connection-status)
+- [Connections by Source](#connections-by-source)
+- [Find Problematic Connections](#find-problematic-connections)
+- [Kill Connections](#kill-connections)
+- [Configure Timeouts](#configure-timeouts)
+- [Connection States](#connection-states)
+- [max_connections Guidelines](#max_connections-guidelines)
+- [Increase max_connections](#increase-max_connections-requires-restart)
+
 ## Check Connection Status
 
 ```sql

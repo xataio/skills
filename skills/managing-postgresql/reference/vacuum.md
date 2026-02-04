@@ -1,5 +1,15 @@
 # Vacuum and Table Maintenance
 
+## Contents
+
+- [Check Vacuum Status](#check-vacuum-status)
+- [Monitor Running Vacuum](#monitor-running-vacuum)
+- [Vacuum Commands](#vacuum-commands)
+- [pg_repack (Non-Blocking Alternative)](#pg_repack-non-blocking-alternative-to-vacuum-full)
+- [Autovacuum Tuning](#autovacuum-tuning)
+- [Transaction ID Wraparound](#transaction-id-wraparound)
+- [Troubleshooting](#troubleshooting)
+
 ## Check Vacuum Status
 
 ```sql
@@ -48,6 +58,27 @@ VACUUM FULL table_name;
 ```
 
 ## pg_repack (Non-Blocking Alternative to VACUUM FULL)
+
+**Installation required:** pg_repack is not included with PostgreSQL. Install separately:
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install postgresql-<version>-repack
+
+# RHEL/CentOS
+sudo yum install pg_repack_<version>
+
+# macOS (Homebrew)
+brew install pg_repack
+```
+
+Then create the extension in your database:
+
+```sql
+CREATE EXTENSION pg_repack;
+```
+
+**Usage:**
 
 ```bash
 pg_repack -h <HOST> -U <USER> -d database -t schema.table_name

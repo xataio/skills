@@ -1,5 +1,18 @@
 # Performance Tuning
 
+## Contents
+
+- [Check Current Settings](#check-current-settings)
+- [Memory Settings](#memory-settings)
+- [WAL Settings](#wal-settings)
+- [I/O Settings](#io-settings)
+- [Parallelism](#parallelism-8-cores)
+- [Apply Changes](#apply-changes)
+- [Check Pending Restarts](#check-pending-restarts)
+- [Autovacuum Tuning](#autovacuum-tuning)
+- [Quick Reference](#quick-reference-16gb--8-cpu--ssd)
+- [Troubleshooting](#troubleshooting)
+
 **Always test changes in non-production first.**
 
 ## Check Current Settings

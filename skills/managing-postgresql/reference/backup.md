@@ -1,5 +1,17 @@
 # Backup and Recovery
 
+## Contents
+
+- [Backup Types](#backup-types)
+- [Logical Backup (pg_dump)](#logical-backup-pg_dump)
+- [Restore](#restore)
+- [Physical Backup (pg_basebackup)](#physical-backup-pg_basebackup)
+- [Point-in-Time Recovery (PITR)](#point-in-time-recovery-pitr)
+- [Check Archive Status](#check-archive-status)
+- [Encrypted Backup](#encrypted-backup)
+- [Backup Strategy](#backup-strategy)
+- [Cloud Providers](#cloud-providers)
+
 **Note:** Replace `<HOST>` and `<USER>` with actual values. pg_dump/pg_restore run remotely; PITR requires server access.
 
 ## Backup Types

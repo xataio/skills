@@ -1,5 +1,15 @@
 # Memory Investigation
 
+## Contents
+
+- [Check Memory Configuration](#check-memory-configuration)
+- [Memory Guidelines](#memory-guidelines)
+- [Check Active Connections](#check-active-connections)
+- [Find Memory-Heavy Queries](#find-memory-heavy-queries-pg_stat_statements)
+- [Immediate Actions](#immediate-actions)
+- [Common Issues](#common-issues)
+- [PgBouncer Example](#pgbouncer-example)
+
 ## Check Memory Configuration
 
 ```sql

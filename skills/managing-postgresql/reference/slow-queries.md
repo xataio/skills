@@ -1,5 +1,15 @@
 # Slow Query Investigation
 
+## Contents
+
+- [Find Slow Queries](#find-slow-queries-requires-pg_stat_statements)
+- [Currently Running Queries](#currently-running-queries)
+- [Analyze Query Plan](#analyze-query-plan)
+- [EXPLAIN Red Flags](#explain-red-flags)
+- [Fix Stale Statistics](#fix-stale-statistics)
+- [Index Recommendations](#index-recommendations)
+- [auto_explain for Production](#auto_explain-for-production)
+
 ## Find Slow Queries (requires pg_stat_statements)
 
 ```sql

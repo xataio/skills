@@ -1,5 +1,14 @@
 # High CPU Investigation
 
+## Contents
+
+- [Step 1: Check Active Queries](#step-1-check-active-queries)
+- [Step 2: Check Lock Contention](#step-2-check-lock-contention)
+- [Step 3: Check Vacuum Status](#step-3-check-vacuum-status)
+- [Step 4: Check Slow Queries](#step-4-check-slow-queries-pg_stat_statements)
+- [Resolution](#resolution)
+- [Common Patterns](#common-patterns)
+
 ## Step 1: Check Active Queries
 
 ```sql

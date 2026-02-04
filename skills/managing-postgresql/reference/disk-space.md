@@ -1,5 +1,17 @@
 # Disk Space Investigation
 
+## Contents
+
+- [Database Sizes](#database-sizes)
+- [Largest Tables](#largest-tables)
+- [Largest Indexes](#largest-indexes)
+- [WAL Retention (Replication Slots)](#wal-retention-replication-slots)
+- [Bloat Check](#bloat-check)
+- [Reclaim Space](#reclaim-space)
+- [Emergency: Disk Almost Full](#emergency-disk-almost-full)
+- [Prevent Future Issues](#prevent-future-issues)
+- [Partition Tables for Easy Cleanup](#partition-tables-for-easy-cleanup)
+
 **Note:** SQL queries run remotely; filesystem checks need server access or cloud tools.
 
 ## Database Sizes
@@ -18,7 +30,7 @@ SELECT
     pg_size_pretty(pg_total_relation_size(relid)) AS total,
     pg_size_pretty(pg_relation_size(relid)) AS table,
     pg_size_pretty(pg_indexes_size(relid)) AS indexes,
-    n_dead_tup AS dead_rows
+    n_dead_tup AS dead_tuples
 FROM pg_stat_user_tables
 ORDER BY pg_total_relation_size(relid) DESC LIMIT 20;
 ```
