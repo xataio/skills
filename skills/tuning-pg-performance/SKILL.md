@@ -18,6 +18,15 @@ description: PostgreSQL performance tuning and configuration optimization. Use w
 
 **Note:** All parameter recommendations in this skill are guidelines based on common workloads. Always test changes in a non-production environment first.
 
+## Important Caveats
+
+**ALWAYS test configuration changes in a non-production environment first.** Wrong settings can cause:
+- Out-of-memory errors (OOM killer)
+- Performance degradation instead of improvement
+- Database crashes or instability
+
+Monitor the database closely after any changes and be prepared to revert.
+
 ## Tuning Workflow
 
 **Progress Checklist:**

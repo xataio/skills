@@ -140,6 +140,24 @@ VACUUM FULL table_name;
 
 **Warning:** `VACUUM FULL` requires an exclusive lock on the table, blocking all reads and writes. It also requires additional disk space to write the new copy of the table.
 
+### Alternative: pg_repack (Non-Blocking)
+
+For production systems where downtime is not acceptable, use **pg_repack** instead of `VACUUM FULL`:
+
+```bash
+# Install pg_repack extension first
+# Then repack a table without blocking reads/writes
+pg_repack -d your_database -t schema.table_name
+
+# Repack all tables in a database
+pg_repack -d your_database
+```
+
+**Advantages over VACUUM FULL:**
+- Does not acquire exclusive locks (only brief locks at start and end)
+- Can be run during normal operations
+- Reclaims space and returns it to the OS
+
 ## Table-Specific Autovacuum Settings
 
 ### Configure Aggressive Vacuum for High-Churn Tables
@@ -261,9 +279,12 @@ ORDER BY age(datfrozenxid) DESC;
 ```sql
 -- Run aggressive vacuum on affected tables
 VACUUM FREEZE table_name;
+```
 
--- Or vacuum entire database
-VACUUMDB --all --freeze
+Or vacuum entire database from the command line:
+
+```bash
+vacuumdb --all --freeze
 ```
 
 ## Best Practices

@@ -136,6 +136,7 @@ WHERE name IN (
 | `maintenance_work_mem` | 5% of RAM or 1-2GB max                          | Used for VACUUM, CREATE INDEX            |
 | `effective_cache_size` | ~75% of RAM                                     | Helps query planner, no memory allocated |
 | `max_connections`      | Based on actual needs                           | Each connection reserves memory          |
+| `huge_pages`           | `try` or `on` for shared_buffers >= 8GB         | Reduces memory overhead, improves TLB    |
 
 ### Example Calculations (32GB RAM Instance)
 

@@ -139,6 +139,30 @@ Based on the execution plan, provide specific DDL if a missing index is identifi
 - **Nested Loop with high row counts** - May need different join strategy
 - **Sort with high memory/disk usage** - Consider index or increase work_mem
 
+### Fixing Stale Statistics
+
+If EXPLAIN shows large discrepancies between estimated and actual rows:
+
+```sql
+-- Check when statistics were last updated
+SELECT
+    schemaname,
+    relname,
+    last_analyze,
+    last_autoanalyze,
+    n_mod_since_analyze
+FROM pg_stat_user_tables
+WHERE relname = 'your_table';
+
+-- Update statistics for a specific table
+ANALYZE your_table;
+
+-- Update statistics with higher sampling for large tables
+ALTER TABLE your_table SET (autovacuum_analyze_scale_factor = 0.01);
+```
+
+**Note:** Always run ANALYZE after bulk data loads, migrations, or major UPDATE/DELETE operations.
+
 ## Index Creation Patterns
 
 ```sql
@@ -205,6 +229,28 @@ EXPLAIN ANALYZE SELECT ...;
 ```
 
 Compare before/after execution times to confirm improvement.
+
+## Advanced: auto_explain Extension
+
+For automatic query plan logging in production:
+
+```sql
+-- Enable auto_explain (add to postgresql.conf or use LOAD)
+LOAD 'auto_explain';
+
+-- Configure auto_explain (session-level for testing)
+SET auto_explain.log_min_duration = '1000ms';  -- Log plans for queries > 1 second
+SET auto_explain.log_analyze = true;           -- Include ANALYZE output
+SET auto_explain.log_buffers = true;           -- Include buffer usage
+```
+
+**For permanent configuration**, add to `postgresql.conf`:
+```
+shared_preload_libraries = 'pg_stat_statements,auto_explain'
+auto_explain.log_min_duration = '1s'
+```
+
+This logs execution plans for slow queries automatically without needing to run EXPLAIN manually.
 
 ## References
 

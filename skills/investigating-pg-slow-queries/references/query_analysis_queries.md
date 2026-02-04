@@ -92,13 +92,26 @@ ORDER BY ordinal_position;
 
 ### Get Table Indexes
 
+Simple version using pg_indexes view:
+
+```sql
+SELECT
+    indexname,
+    indexdef
+FROM pg_indexes
+WHERE tablename = 'your_table'
+ORDER BY indexname;
+```
+
+Detailed version with size and usage:
+
 ```sql
 SELECT
   i.relname as index_name,
   array_to_string(array_agg(a.attname ORDER BY k.i), ', ') as column_names,
   ix.indisunique as is_unique,
   ix.indisprimary as is_primary,
-  pg_relation_size(i.oid) as index_size_bytes
+  pg_size_pretty(pg_relation_size(i.oid)) as index_size
 FROM pg_class t, pg_class i, pg_index ix, pg_attribute a,
      generate_subscripts(ix.indkey, 1) k(i)
 WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid

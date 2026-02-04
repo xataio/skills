@@ -63,6 +63,13 @@ WITH blocked_queries AS (
   JOIN pg_locks blocking_locks ON blocked_locks.locktype = blocking_locks.locktype
     AND blocked_locks.database IS NOT DISTINCT FROM blocking_locks.database
     AND blocked_locks.relation IS NOT DISTINCT FROM blocking_locks.relation
+    AND blocked_locks.page IS NOT DISTINCT FROM blocking_locks.page
+    AND blocked_locks.tuple IS NOT DISTINCT FROM blocking_locks.tuple
+    AND blocked_locks.virtualxid IS NOT DISTINCT FROM blocking_locks.virtualxid
+    AND blocked_locks.transactionid IS NOT DISTINCT FROM blocking_locks.transactionid
+    AND blocked_locks.classid IS NOT DISTINCT FROM blocking_locks.classid
+    AND blocked_locks.objid IS NOT DISTINCT FROM blocking_locks.objid
+    AND blocked_locks.objsubid IS NOT DISTINCT FROM blocking_locks.objsubid
     AND blocked_locks.pid != blocking_locks.pid
   JOIN pg_stat_activity blocking ON blocking_locks.pid = blocking.pid
   WHERE NOT blocked_locks.granted

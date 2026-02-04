@@ -28,8 +28,9 @@ description: PostgreSQL general health monitoring and performance assessment. Us
 - [ ] Step 3: Evaluate slow queries
 - [ ] Step 4: Analyze table statistics
 - [ ] Step 5: Check important settings
-- [ ] Step 6: Review database logs
-- [ ] Step 7: Document findings
+- [ ] Step 6: Check replication status (if applicable)
+- [ ] Step 7: Review database logs
+- [ ] Step 8: Document findings
 ```
 
 ### Step 1: Check Connection Statistics
@@ -135,7 +136,27 @@ ORDER BY name;
 - `work_mem`: Start with 4MB, increase for complex queries
 - `maintenance_work_mem`: 512MB-1GB for maintenance operations
 
-### Step 6: Review Database Logs
+### Step 6: Check Replication Status (If Applicable)
+
+For databases with replicas, check replication lag:
+
+```sql
+-- Run on primary to see replica lag
+SELECT
+    client_addr,
+    state,
+    sent_lsn,
+    replay_lsn,
+    pg_wal_lsn_diff(sent_lsn, replay_lsn) AS lag_bytes,
+    pg_size_pretty(pg_wal_lsn_diff(sent_lsn, replay_lsn)) AS lag_pretty
+FROM pg_stat_replication;
+```
+
+**What to look for:**
+- `lag_bytes > 0` indicates replica is behind
+- Sustained high lag may indicate network issues or replica under-provisioning
+
+### Step 7: Review Database Logs
 
 Check recent logs for warnings and errors:
 
@@ -145,7 +166,7 @@ Check recent logs for warnings and errors:
 - Out of memory errors
 - Replication lag warnings
 
-### Step 7: Document Findings
+### Step 8: Document Findings
 
 Record all findings including:
 

@@ -206,6 +206,18 @@ ALTER DATABASE mydb SET statement_timeout = '60s';
 ALTER DATABASE mydb SET idle_in_transaction_session_timeout = '300s';
 ```
 
+### Enable Lock Wait Logging
+
+Enable logging when queries wait for locks longer than `deadlock_timeout`:
+
+```sql
+-- Log when queries wait for locks (requires reload)
+ALTER SYSTEM SET log_lock_waits = on;
+SELECT pg_reload_conf();
+```
+
+This helps identify lock contention patterns in the PostgreSQL logs.
+
 ## Preventing Lock Issues
 
 ### Best Practices

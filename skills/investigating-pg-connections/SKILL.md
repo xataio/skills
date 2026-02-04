@@ -48,8 +48,9 @@ FROM
 
 **Decision Point:**
 
-- If utilization < 20%: Connections is healthy. Stop investigation unless specific issues reported.
-- If utilization >= 20%: Continue to Step 2.
+- If utilization < 50%: Connections utilization is healthy. Stop investigation unless specific issues reported.
+- If utilization 50-80%: Monitor closely, but generally acceptable.
+- If utilization >= 80%: Continue to Step 2 - action may be required.
 
 ### Step 2: Analyze Connection Trend
 
@@ -248,28 +249,28 @@ ALTER SYSTEM SET max_connections = 500;
 ### Connection Count by State
 
 ```sql
-SELECT state, count(*)
+SELECT state, count(*) AS connection_count
 FROM pg_stat_activity
 GROUP BY state
-ORDER BY count DESC;
+ORDER BY connection_count DESC;
 ```
 
 ### Connections by Application
 
 ```sql
-SELECT application_name, count(*)
+SELECT application_name, count(*) AS connection_count
 FROM pg_stat_activity
 GROUP BY application_name
-ORDER BY count DESC;
+ORDER BY connection_count DESC;
 ```
 
 ### Connections by User
 
 ```sql
-SELECT usename, count(*)
+SELECT usename, count(*) AS connection_count
 FROM pg_stat_activity
 GROUP BY usename
-ORDER BY count DESC;
+ORDER BY connection_count DESC;
 ```
 
 ### Long-Running Transactions

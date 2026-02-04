@@ -51,6 +51,16 @@ Use the `active_queries` SQL from [references/cpu_investigation_queries.md](refe
 - Queries running for hours with "active" state
 - High number of queries waiting on locks
 
+**Wait Event Interpretation:**
+
+| wait_event_type | Meaning | Common Causes |
+|-----------------|---------|---------------|
+| `NULL` | Actively using CPU | Query is running - may be the cause of high CPU |
+| `Lock` | Waiting for lock | Another query is blocking this one |
+| `IO` | Waiting for disk I/O | Insufficient memory, missing indexes |
+| `LWLock` | Lightweight lock wait | Internal PostgreSQL contention |
+| `BufferPin` | Buffer management | High concurrency on same data |
+
 ### Step 2: Check Lock Contention
 
 Blocked queries waiting on locks can cause cascading performance issues.
