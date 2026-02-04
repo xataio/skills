@@ -27,6 +27,13 @@ For more information about skills, visit [skills.sh](https://skills.sh).
 | `managing-postgresql` | [backup](skills/managing-postgresql/reference/backup.md)             | Backup and recovery           |
 | `managing-postgresql` | [replication](skills/managing-postgresql/reference/replication.md)   | Replication, failover         |
 | `managing-postgresql` | [security](skills/managing-postgresql/reference/security.md)         | Access control, permissions   |
+| `using-xata-cli`      | [auth](skills/using-xata-cli/reference/auth.md)                      | Login, profiles, tokens       |
+| `using-xata-cli`      | [projects](skills/using-xata-cli/reference/projects.md)              | Project setup, configuration  |
+| `using-xata-cli`      | [branches](skills/using-xata-cli/reference/branches.md)              | Branch management, URLs       |
+| `using-xata-cli`      | [migrations](skills/using-xata-cli/reference/migrations.md)          | Schema migrations (pgroll)    |
+| `using-xata-cli`      | [organizations](skills/using-xata-cli/reference/organizations.md)    | Team and org management       |
+| `using-xata-cli`      | [keys](skills/using-xata-cli/reference/keys.md)                      | API key management            |
+| `using-xata-cli`      | [clone](skills/using-xata-cli/reference/clone.md)                    | Database cloning              |
 
 ## Contributing
 
