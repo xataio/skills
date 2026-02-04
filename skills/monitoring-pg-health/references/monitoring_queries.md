@@ -1,7 +1,5 @@
 # PostgreSQL General Monitoring Queries
 
-Reference collection for database health assessment.
-
 ## Table of Contents
 
 - [Connection Statistics](#connection-statistics)

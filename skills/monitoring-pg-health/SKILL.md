@@ -166,7 +166,7 @@ For a rapid assessment, run these queries in sequence:
 
 Additional SQL queries and reference material are available in:
 
-- `references/monitoring_queries.md` - Complete collection of monitoring queries with interpretation guides
+- [references/monitoring_queries.md](references/monitoring_queries.md) - Complete collection of monitoring queries with interpretation guides
 
 ## Health Check Summary Template
 

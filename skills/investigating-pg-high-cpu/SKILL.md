@@ -43,7 +43,7 @@ First, identify currently running queries that may be consuming CPU resources.
 - Queries in "active" state consuming resources
 - Queries with concerning wait events (Lock, IO, etc.)
 
-Use the `active_queries` SQL from `references/cpu_investigation_queries.md`.
+Use the `active_queries` SQL from [references/cpu_investigation_queries.md](references/cpu_investigation_queries.md).
 
 **Red flags:**
 
@@ -61,7 +61,7 @@ Blocked queries waiting on locks can cause cascading performance issues.
 - Long-held locks preventing other queries from executing
 - Deadlock situations
 
-Use the `blocked_queries` SQL from `references/cpu_investigation_queries.md`.
+Use the `blocked_queries` SQL from [references/cpu_investigation_queries.md](references/cpu_investigation_queries.md).
 
 **Red flags:**
 
@@ -91,7 +91,7 @@ Table bloat from dead tuples causes inefficient table scans and higher CPU usage
 - Tables that haven't been vacuumed recently
 - High modification counts since last analyze
 
-Use the `vacuum_stats` SQL from `references/cpu_investigation_queries.md`.
+Use the `vacuum_stats` SQL from [references/cpu_investigation_queries.md](references/cpu_investigation_queries.md).
 
 **Red flags:**
 
@@ -105,7 +105,7 @@ Identify historically problematic queries that may be contributing to CPU load.
 
 **Requirements:** pg_stat_statements extension must be enabled.
 
-Use the `slow_queries` SQL from `references/cpu_investigation_queries.md`.
+Use the `slow_queries` SQL from [references/cpu_investigation_queries.md](references/cpu_investigation_queries.md).
 
 **What to analyze:**
 
@@ -237,7 +237,7 @@ SELECT count(*) FROM pg_stat_activity WHERE wait_event_type = 'Lock';
 
 ## Resources
 
-- `references/cpu_investigation_queries.md` - Complete SQL queries for investigation
+- [references/cpu_investigation_queries.md](references/cpu_investigation_queries.md) - Complete SQL queries for investigation
 
 ## Step 8: Verify Resolution
 

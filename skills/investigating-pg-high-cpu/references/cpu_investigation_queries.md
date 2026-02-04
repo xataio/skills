@@ -1,5 +1,19 @@
 # PostgreSQL High CPU Investigation SQL Queries
 
+## Table of Contents
+
+- [Active Queries](#active-queries)
+- [Blocked Queries (Lock Contention)](#blocked-queries-lock-contention)
+- [Vacuum Statistics](#vacuum-statistics)
+- [Slow Queries (pg_stat_statements)](#slow-queries-pg_stat_statements)
+- [Connection Summary](#connection-summary)
+- [Table Size and Bloat Estimation](#table-size-and-bloat-estimation)
+- [Index Usage Statistics](#index-usage-statistics)
+- [Replication Lag](#replication-lag-if-applicable)
+- [Cache Hit Ratio](#cache-hit-ratio)
+
+---
+
 ## Active Queries
 
 Query to get currently active queries from pg_stat_activity:

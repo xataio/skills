@@ -1,5 +1,16 @@
 # PostgreSQL Slow Query Investigation - SQL Reference
 
+## Table of Contents
+
+- [Finding Slow Queries](#finding-slow-queries)
+- [Schema Investigation](#schema-investigation)
+- [EXPLAIN Templates](#explain-templates)
+- [Index Analysis](#index-analysis)
+- [Index Creation Examples](#index-creation-examples)
+- [Performance Diagnostics](#performance-diagnostics)
+
+---
+
 ## Finding Slow Queries
 
 ### Basic pg_stat_statements Query

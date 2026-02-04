@@ -208,4 +208,4 @@ Compare before/after execution times to confirm improvement.
 
 ## References
 
-See `references/query_analysis_queries.md` for complete SQL query templates and additional examples.
+See [references/query_analysis_queries.md](references/query_analysis_queries.md) for complete SQL query templates and additional examples.
