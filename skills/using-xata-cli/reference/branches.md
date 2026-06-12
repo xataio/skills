@@ -2,6 +2,8 @@
 
 Manage database branches with cluster configuration.
 
+Most branch subcommands accept the target branch either as a positional argument or via `--branch <id>`. They also accept `--organization` and `--project` to override the linked values.
+
 ## Contents
 
 - [List Branches](#list-branches)
@@ -10,6 +12,8 @@ Manage database branches with cluster configuration.
 - [Switch Branch](#switch-branch)
 - [Get Connection String](#get-connection-string)
 - [Wait for Branch Ready](#wait-for-branch-ready)
+- [Branch Metrics](#branch-metrics)
+- [Rotate Password](#rotate-password)
 - [Delete Branch](#delete-branch)
 - [Branch Hierarchy](#branch-hierarchy)
 - [Branch Configuration](#branch-configuration)
@@ -36,9 +40,10 @@ xata branch list --json
 xata branch describe
 ```
 
-For specific branch:
+For a specific branch (positional or flag):
 
 ```bash
+xata branch describe <name>
 xata branch describe --branch <name>
 ```
 
@@ -46,55 +51,52 @@ xata branch describe --branch <name>
 
 ## Create Branch
 
-Basic creation:
+Interactive creation (the CLI prompts for any option you leave out):
 
 ```bash
-xata branch create <name>
+xata branch create
 ```
 
 ### Options
 
 ```bash
-xata branch create <name> \
+xata branch create \
+  --name <name> \
+  --parent-branch <branch-id> \
   --region <region> \
   --instance-type <type> \
   --replicas <0-4> \
-  --parent <branch-name> \
   --postgres-version <version> \
-  --scale-to-zero \
-  --inactivity-period <minutes>
+  --scale-to-zero <true|false> \
+  --inactivity-period <15|30|60|120|180>
 ```
 
-| Option                | Description                           |
-| --------------------- | ------------------------------------- |
-| `--region`            | AWS region (e.g., `us-east-1`)        |
-| `--instance-type`     | Size: `small`, `medium`, `large`      |
-| `--replicas`          | Read replicas count (0-4)             |
-| `--parent`            | Create as child of another branch     |
-| `--postgres-version`  | PostgreSQL version                    |
-| `--scale-to-zero`     | Enable scale-to-zero for cost savings |
-| `--inactivity-period` | Minutes before scaling to zero        |
+| Option               | Description                                                            |
+| -------------------- | --------------------------------------------------------------------- |
+| `--name`             | Branch name                                                           |
+| `--parent-branch`    | Parent branch ID. Pass `None` to create a branch without a parent.    |
+| `--region`           | Region for the branch                                                 |
+| `--instance-type`    | Instance type for the branch                                          |
+| `--replicas`         | Number of read replicas (`0`–`4`)                                     |
+| `--postgres-version` | PostgreSQL version (defaults to the latest available)                 |
+| `--scale-to-zero`    | Scale-to-zero status, `true` or `false`                              |
+| `--inactivity-period`| Minutes before scaling to zero (`15`, `30`, `60`, `120`, or `180`)   |
 
 ### Example: Feature Branch
 
 ```bash
-xata branch create feature-auth --region us-east-1 --parent main
-```
-
-### Example: Production Branch
-
-```bash
-xata branch create production \
-  --region us-east-1 \
-  --instance-type large \
-  --replicas 2
+xata branch create --name feature-auth --parent-branch main --region us-east-1
 ```
 
 ## Switch Branch
 
+Switch the locally-configured working branch:
+
 ```bash
 xata branch checkout <name>
 ```
+
+`xata checkout <name>` is a top-level shortcut for the same command.
 
 ## Get Connection String
 
@@ -102,27 +104,79 @@ xata branch checkout <name>
 xata branch url
 ```
 
-For specific branch:
+For a specific branch and/or database:
 
 ```bash
-xata branch url --branch <name>
+xata branch url <name> --database <db>
 ```
 
 **Alias:** `connection-string`
 
+### Connection Type
+
+Use `--type` to choose how the connection string routes:
+
+| `--type` value         | Description                                          |
+| ---------------------- | ---------------------------------------------------- |
+| `primary` (default)    | Direct access to the primary                         |
+| `primary-or-replica`   | Routed access to primary or replicas                 |
+| `replica`              | Read-only access to replicas only                    |
+| `pooler`               | Pooled access to the primary                         |
+
+```bash
+xata branch url --type pooler
+```
+
 ## Wait for Branch Ready
 
-Block until branch is healthy:
+Block until a branch is ready:
 
 ```bash
 xata branch wait-ready
+xata branch wait-ready <name>
 ```
 
-With timeout:
+Wake a hibernated branch while waiting:
 
 ```bash
-xata branch wait-ready --timeout 300
+xata branch wait-ready <name> --wake
 ```
+
+## Branch Metrics
+
+Show CPU, memory, and other metrics for a branch:
+
+```bash
+xata branch metrics
+xata branch metrics <name>
+```
+
+Useful flags:
+
+| Flag             | Description                                                                 |
+| ---------------- | --------------------------------------------------------------------------- |
+| `--range`        | Time range ending now, e.g. `1h`, `24h`, `7d`                               |
+| `--from` / `--to`| Start/end as ISO timestamps                                                 |
+| `--metrics`      | `default`, `all`, or a comma-separated list                                 |
+| `--instances`    | `all`, `primary`, `replicas`, or comma-separated instance IDs               |
+| `--aggregations` | Comma-separated `avg,max,min` (default `avg,max,min`)                        |
+| `--format`       | Output format (`table` by default)                                          |
+| `--watch`, `-w`  | Refresh metrics continuously                                                |
+| `--interval`     | Refresh interval for watch mode, e.g. `10s`, `1m`, `500ms`                  |
+
+```bash
+xata branch metrics --range 1h --watch
+```
+
+## Rotate Password
+
+Rotate the database password for a branch:
+
+```bash
+xata branch rotate-password <name>
+```
+
+Skip the confirmation prompt with `--yes`.
 
 ## Delete Branch
 
@@ -133,31 +187,40 @@ xata branch delete <name>
 Skip confirmation:
 
 ```bash
-xata branch delete <name> --force
+xata branch delete <name> --yes
 ```
+
+You can also target a branch by ID with `--branch <id>`.
 
 ## Branch Hierarchy
 
-View branch tree:
+View the branch tree:
 
 ```bash
 xata branch tree
 ```
 
-**Alias:** `topology`
+**Alias:** `topology`. Add `--show-ids` to include branch IDs.
 
 ## Branch Configuration
 
-### Get Configuration
+`xata branch get` / `xata branch set` read and write branch fields. Settable fields: `replicas`, `instance-type`, `scale-to-zero`, `inactivity-period`, `postgres-version`.
+
+### Get a Field
 
 ```bash
-xata branch get <key>
+xata branch get <field>
 ```
 
-### Set Configuration
+### Set a Field
 
 ```bash
-xata branch set <key> <value>
+xata branch set <field> <value>
+```
+
+```bash
+xata branch set postgres-version 17
+xata branch set replicas 2
 ```
 
 ## Common Patterns
@@ -166,15 +229,15 @@ xata branch set <key> <value>
 
 ```bash
 # Create from main
-xata branch create feature-x --parent main
+xata branch create --name feature-x --parent-branch main
 
 # Wait for it
-xata branch wait-ready --branch feature-x
+xata branch wait-ready feature-x
 
 # Switch to it
 xata branch checkout feature-x
 
-# Get connection string for app
+# Get connection string for the app
 xata branch url
 ```
 
@@ -184,18 +247,18 @@ xata branch url
 # List all branches
 xata branch list --json | jq -r '.[].name'
 
-# Delete specific branch
-xata branch delete old-feature --force
+# Delete a specific branch
+xata branch delete old-feature --yes
 ```
 
 ## Common Issues
 
-**"Branch not found":** Verify branch name with `xata branch list`. Branch names are case-sensitive.
+**"Branch not found":** Verify the branch name with `xata branch list`. Branch names are case-sensitive.
 
-**Branch creation fails:** Check available regions with `xata regions list`. Verify project context with `xata status`.
+**Branch creation fails:** Re-run `xata branch create` interactively so the CLI offers valid regions and instance types. Verify project context with `xata status`.
 
-**wait-ready times out:** Increase timeout with `--timeout 600`. Check branch health with `xata branch describe --branch <name>`.
+**wait-ready never returns:** The branch may be hibernated. Re-run with `--wake`, and check branch health with `xata branch describe <name>`.
 
-**Cannot delete branch:** Ensure branch is not the default. Use `--force` to skip confirmation.
+**Cannot delete branch:** Ensure the branch is not the default. Use `--yes` to skip confirmation.
 
-**Connection string not working:** Verify branch is healthy with `xata branch describe`. Check if branch has scaled to zero.
+**Connection string not working:** Verify the branch is ready with `xata branch describe`. If it scaled to zero, run `xata branch wait-ready <name> --wake`.
