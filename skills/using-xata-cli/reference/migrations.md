@@ -1,6 +1,6 @@
 # Schema Migrations
 
-PostgreSQL schema migrations using pgroll.
+PostgreSQL schema migrations using pgroll. The `xata roll` commands wrap the bundled `pgroll` binary, so they accept pgroll's flags (e.g. `--postgres-url`, `--pgroll-schema`, `--lock-timeout`, `--role`, `--schema`). The CLI runs them against the current project's branch.
 
 ## Contents
 
@@ -18,23 +18,17 @@ PostgreSQL schema migrations using pgroll.
 
 ## Initialize
 
-Set up migrations directory structure:
+Set up the migrations table in the target branch:
 
 ```bash
 xata roll init
 ```
 
-With custom directory:
-
-```bash
-xata roll init --directory ./migrations
-```
-
 ## Migration Workflow
 
-### 1. Create Migration File
+### 1. Create a Migration File
 
-Migrations are JSON files describing schema changes. Example `001_add_users.json`:
+Migrations are JSON (or YAML) files describing schema changes. Example `001_add_users.json`:
 
 ```json
 {
@@ -54,19 +48,19 @@ Migrations are JSON files describing schema changes. Example `001_add_users.json
 }
 ```
 
-### 2. Start Migration
+### 2. Start the Migration
 
-Begin migration (creates new schema version):
+Begin a migration (creates a new, parallel schema version):
 
 ```bash
 xata roll start 001_add_users.json
 ```
 
-### 3. Test Changes
+### 3. Test the Changes
 
-Your app can now use the new schema while old schema remains available.
+Your app can use the new schema version while the old version stays available, so you can roll out clients gradually.
 
-### 4. Complete Migration
+### 4. Complete the Migration
 
 Finalize when ready:
 
@@ -74,9 +68,9 @@ Finalize when ready:
 xata roll complete
 ```
 
-### 5. Or Rollback
+### 5. Or Roll Back
 
-If issues found:
+If issues are found before completing:
 
 ```bash
 xata roll rollback
@@ -84,10 +78,11 @@ xata roll rollback
 
 ## Quick Migrate
 
-Start and complete in one step:
+Apply every migration in a folder. `migrate` takes the migrations directory (default is the project's migrations folder), and `--complete` also completes the last migration:
 
 ```bash
-xata roll migrate <migration-file>
+xata roll migrate ./migrations
+xata roll migrate ./migrations --complete
 ```
 
 ## Check Status
@@ -96,62 +91,48 @@ xata roll migrate <migration-file>
 xata roll status
 ```
 
-JSON output:
-
-```bash
-xata roll status --json
-```
-
 ## Baseline Existing Database
 
-For databases with existing schema:
+Capture the current state of a database that already has a schema as the first migration:
 
 ```bash
-xata roll baseline
+xata roll baseline <version-name> ./migrations
 ```
+
+For example: `xata roll baseline 01_initial_schema ./migrations`.
 
 ## Pull Current Schema
 
-Sync schema from database to local files:
+Pull the applied migration history from the database into a local folder:
 
 ```bash
-xata roll pull
-```
-
-With output path:
-
-```bash
-xata roll pull --output ./schema.json
+xata roll pull ./migrations
 ```
 
 ## View Latest
 
-### Current Schema
-
 ```bash
+# Latest schema version (migration name prefixed with the schema)
 xata roll latest schema
-```
 
-### Current Migration
-
-```bash
+# Latest migration name (without the schema prefix)
 xata roll latest migration
 ```
 
 ## Update Migration
 
-Modify an in-progress migration:
+Update/normalize migration files in a directory:
 
 ```bash
-xata roll update <migration-file>
+xata roll update ./migrations
 ```
 
 ## Convert Formats
 
-Convert between migration formats:
+Convert a plain-SQL migration file into pgroll's JSON format:
 
 ```bash
-xata roll convert <input-file> --format <format>
+xata roll convert <input-file>
 ```
 
 ## Common Migration Operations
@@ -205,14 +186,12 @@ xata roll convert <input-file> --format <format>
 
 ## Common Issues
 
-**Migration stuck:** Check status with `xata roll status`, then either `complete` or `rollback`
+**Migration stuck:** Check `xata roll status`, then either `xata roll complete` or `xata roll rollback`.
 
-**Schema conflict:** Pull latest with `xata roll pull` and compare with your migration
+**"Migration already in progress":** Complete or roll back the active migration before starting a new one.
 
-**Rollback failed:** Check database state, may need manual intervention
+**Schema conflict:** Pull the latest history with `xata roll pull` and compare with your migration.
 
-**"Migration already in progress":** Complete or rollback the existing migration with `xata roll complete` or `xata roll rollback`
+**Invalid migration file:** Validate the JSON. Check operation names against the pgroll schema (e.g. `create_table`, `add_column`).
 
-**Invalid migration file:** Validate JSON syntax. Check operation names match pgroll schema (e.g., `create_table`, `add_column`)
-
-**Migration not found:** Ensure file path is correct. Run `xata roll init` if migrations directory doesn't exist
+**Branch not reachable:** The CLI must reach the branch's Postgres endpoint. If the branch scaled to zero, wake it with `xata branch wait-ready <name> --wake` first.

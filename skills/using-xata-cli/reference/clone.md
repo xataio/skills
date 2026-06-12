@@ -1,149 +1,122 @@
 # Database Cloning
 
-Clone databases with optional anonymization.
+Clone another PostgreSQL database into your current Xata branch, with optional anonymization. These commands wrap the bundled `pgstream` binary.
 
 ## Contents
 
 - [Overview](#overview)
-- [Generate Configuration](#generate-configuration)
-- [Start Clone](#start-clone)
-- [Validate Clone](#validate-clone)
-- [Configuration File Format](#configuration-file-format)
+- [Generate the Transform Config](#generate-the-transform-config)
+- [Start a Clone](#start-a-clone)
+- [Continuous Stream](#continuous-stream)
+- [Shared Flags](#shared-flags)
+- [Config File](#config-file)
 - [Common Patterns](#common-patterns)
 - [Common Issues](#common-issues)
 
 ## Overview
 
-Xata clone allows you to:
+Xata clone copies structure and data from a source database (`--source-url`) into the branch configured for the current project (or the one passed with `--branch`). There is no separate target flag: the clone always lands in the Xata branch. Optionally, column transformers anonymize sensitive data as it is copied.
 
-- Copy database structure and data between branches
-- Anonymize sensitive data during copy
-- Generate anonymization configs with AI assistance
+The workflow is:
 
-## Generate Configuration
+1. Generate an anonymization config with `xata clone config`.
+2. Run `xata clone start` (one-shot) or `xata clone stream` (continuous).
 
-Interactive mode:
-
-```bash
-xata clone config
-```
-
-AI-assisted mode (generates anonymization rules automatically):
+## Generate the Transform Config
 
 ```bash
-xata clone config --mode ai
+xata clone config --source-url <postgres-url>
 ```
 
-This creates a configuration file defining:
+The `--mode` flag controls how the config is generated:
 
-- Tables to include/exclude
-- Columns to anonymize
-- Anonymization strategies (fake data, masking, etc.)
+| `--mode` value | Behavior                                                                  |
+| -------------- | ------------------------------------------------------------------------- |
+| `auto`         | Generate a config automatically with sensible defaults                    |
+| `prompt`       | Interactive prompts (terminal)                                            |
+| `web`          | Open a browser-based helper                                               |
+| `ai`           | Use AI to detect likely PII and pick transformers                         |
 
-## Start Clone
+For AI mode you can steer it with `--prompt`:
+
+```bash
+xata clone config --source-url <url> --mode ai --prompt "anonymize email and phone columns"
+```
+
+The generated config is written to `.xata/clone.yaml`. Review and edit it before cloning. Use `--validation-mode` (`strict`, `relaxed`, or `prompt`) to control how strictly tables/columns must be specified.
+
+## Start a Clone
+
+One-shot clone of the source into the current branch:
+
+```bash
+xata clone start --source-url <postgres-url>
+```
+
+With anonymization and roles copied:
 
 ```bash
 xata clone start \
-  --source <source-branch> \
-  --target <target-branch> \
-  --config <config-file>
-```
-
-### Options
-
-| Option         | Description                 |
-| -------------- | --------------------------- |
-| `--source`     | Source branch to clone from |
-| `--target`     | Target branch to clone to   |
-| `--config`     | Path to configuration file  |
-| `--copy-roles` | Also copy database roles    |
-
-### Example
-
-```bash
-xata clone start \
-  --source production \
-  --target staging \
-  --config anonymize.json \
+  --source-url postgres://user:pass@host:5432/db \
+  --validation-mode strict \
   --copy-roles
 ```
 
-## Validate Clone
+## Continuous Stream
 
-Stream and validate data during clone:
+`xata clone stream` keeps streaming changes from the source (change data capture) rather than doing a single snapshot:
 
 ```bash
-xata clone stream --validate
+xata clone stream --source-url <postgres-url>
 ```
 
-## Configuration File Format
+Stream supports `--replication-slot <name>` and `--skip-ddl-tracking` for managed Postgres services that do not allow the superuser access needed for event triggers.
 
-Example `anonymize.json`:
+## Shared Flags
 
-```json
-{
-  "tables": {
-    "users": {
-      "columns": {
-        "email": { "strategy": "fake_email" },
-        "phone": { "strategy": "mask", "keep_last": 4 },
-        "name": { "strategy": "fake_name" }
-      }
-    },
-    "audit_logs": {
-      "exclude": true
-    }
-  }
-}
-```
+`start` and `stream` accept:
 
-### Anonymization Strategies
+| Flag                | Description                                                            |
+| ------------------- | --------------------------------------------------------------------- |
+| `--source-url`      | Source database URL to clone/stream from (required)                   |
+| `--branch`          | Target Xata branch ID (defaults to the linked branch)                 |
+| `--filter-tables`   | Tables to include, e.g. `public.*` (default `*.*`)                    |
+| `--validation-mode` | `strict`, `relaxed`, or `prompt`                                      |
+| `--role`            | Postgres role to use (stream's role needs `REPLICATION` privilege)    |
+| `--log-level`       | `trace`, `debug`, `info`, `warn`, `error`, `fatal`, or `panic`        |
+| `--copy-roles`      | Copy roles, owners, and privileges to the target                      |
 
-| Strategy     | Description                        |
-| ------------ | ---------------------------------- |
-| `fake_email` | Generate fake email address        |
-| `fake_name`  | Generate fake name                 |
-| `fake_phone` | Generate fake phone number         |
-| `mask`       | Mask characters (e.g., `****1234`) |
-| `null`       | Replace with NULL                  |
-| `constant`   | Replace with constant value        |
+## Config File
+
+`.xata/clone.yaml` follows pgstream's transformations format: a `validation_mode` plus `table_transformers`, where each table lists `column_transformers` keyed by column. Columns with no transformer use `noop` (copied as-is). Run `xata clone config` again to regenerate it.
 
 ## Common Patterns
 
-### Production to Staging
+### Anonymized Production Copy
 
 ```bash
-# Generate anonymization config
-xata clone config --mode ai
+# 1. Generate an AI-assisted anonymization config
+xata clone config --source-url $PROD_URL --mode ai
 
-# Review and edit config
-# ... edit anonymize.json ...
+# 2. Review/edit .xata/clone.yaml
 
-# Clone with anonymization
-xata clone start \
-  --source production \
-  --target staging \
-  --config anonymize.json
+# 3. Clone into the current branch
+xata clone start --source-url $PROD_URL --validation-mode strict
 ```
 
-### Development Copy (No Anonymization)
+### Plain Copy (No Anonymization)
 
 ```bash
-xata clone start \
-  --source staging \
-  --target dev-feature
+xata clone config --source-url $SRC_URL --mode auto
+xata clone start --source-url $SRC_URL
 ```
 
 ## Common Issues
 
-**Clone stuck:** Check progress with `xata clone stream`
+**Validation errors:** Tighten or relax `--validation-mode`. In `strict` mode every table and column must have an explicit transformer in `.xata/clone.yaml`.
 
-**Data mismatch:** Validate with `xata clone stream --validate`
+**Missing tables:** Check `--filter-tables` (default `*.*`) and the table list in `.xata/clone.yaml`.
 
-**Missing tables:** Check config file for `"exclude": true` on tables
+**Stream cannot create a replication slot:** Pass `--skip-ddl-tracking` with a pre-created `--replication-slot`, and ensure `--role` has `REPLICATION` privilege.
 
-**Invalid anonymization strategy:** Verify strategy name matches supported options (fake_email, fake_name, mask, null, constant)
-
-**Source branch not found:** Verify branch name with `xata branch list`. Check project context with `xata status`.
-
-**Target branch already exists:** Delete existing branch first or use a different name
+**Source not reachable:** Verify `--source-url` credentials and network access from where you run the CLI.
