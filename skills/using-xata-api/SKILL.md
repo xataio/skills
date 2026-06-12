@@ -62,7 +62,13 @@ curl -H "Connection-String: $XATA_BRANCH_CONNECTION_STRING" \
      "https://$BRANCH.$REGION.xata.tech/sql"
 ```
 
-In short: management calls on `api.xata.tech` use the API key; data/SQL calls on the branch host use the connection string. For most query workloads, connecting a standard Postgres driver with the connection string is simpler than the HTTP SQL endpoint.
+For most query workloads you do not need the HTTP endpoint at all: the connection string is a standard PostgreSQL DSN, so connect with any driver or open a shell with `psql`:
+
+```sh
+psql "$XATA_BRANCH_CONNECTION_STRING"
+```
+
+In short: management calls on `api.xata.tech` use the API key; data/SQL calls on the branch host use the connection string.
 
 ## Conventions
 
