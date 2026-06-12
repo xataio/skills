@@ -20,6 +20,8 @@ curl -H "Authorization: Bearer $XATA_API_KEY" https://api.xata.tech/organization
 
 Create API keys in the dashboard or with `xata keys create` (see the `using-xata-cli` skill). OAuth 2.0 is also supported for user-facing apps (Keycloak realm `xata`, with scopes such as `org:read`, `project:read`, `branch:write`).
 
+This applies to the management API on `api.xata.tech` only. The SQL data gateway authenticates differently (see below): it takes the branch connection string, not the API key.
+
 ## Resource model
 
 Organizations contain projects; projects contain branches; each branch is a Postgres database. The id a list call returns is the next path segment, so you walk down the hierarchy.
@@ -43,6 +45,24 @@ Create with `POST` on the collection (e.g. `POST .../projects`, `POST .../branch
 2. `GET .../branches/{branchID}/credentials?username=<user>` returns a username and password (the `username` query param is optional and defaults to the branch user).
 
 Substitute the credentials into the connection string and connect with any Postgres driver (`postgres`, `pg`, psql). For connecting from code, see the project's TypeScript/driver examples in the docs.
+
+## Running SQL (the data gateway authenticates differently)
+
+SQL runs against the data gateway, not the management API, and it uses a different host and a different credential. There is no API-key bearer here.
+
+- Host: per branch, `https://{branchID}.{region}.xata.tech` (the host encodes the branch and region).
+- Auth: the `Connection-String` header, whose value is the branch's full PostgreSQL connection string (it embeds the credentials). The control-plane API key (`Authorization: Bearer`) is **not** accepted on the gateway.
+- Execute SQL with `POST /sql`; a PostgreSQL wire-protocol proxy is available over WebSocket at `GET /v2`.
+
+```sh
+# request/response body shapes are in the OpenAPI spec
+curl -H "Connection-String: $XATA_BRANCH_CONNECTION_STRING" \
+     -H "Content-Type: application/json" \
+     -d '{ ... }' \
+     "https://$BRANCH.$REGION.xata.tech/sql"
+```
+
+In short: management calls on `api.xata.tech` use the API key; data/SQL calls on the branch host use the connection string. For most query workloads, connecting a standard Postgres driver with the connection string is simpler than the HTTP SQL endpoint.
 
 ## Conventions
 
