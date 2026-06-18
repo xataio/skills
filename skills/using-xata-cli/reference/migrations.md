@@ -78,7 +78,7 @@ xata roll rollback
 
 ## Quick Migrate
 
-Apply every migration in a folder. `migrate` takes the migrations directory (default is the project's migrations folder), and `--complete` also completes the last migration:
+Apply every migration in a folder. `migrate` takes the migrations directory (default `.xata/migrations`), and `--complete` also completes the last migration:
 
 ```bash
 xata roll migrate ./migrations

@@ -1,6 +1,6 @@
 ---
 name: using-xata-cli
-description: Manages Xata serverless PostgreSQL databases via the xata CLI. Triggers when working with Xata projects, branches, organizations, authentication, schema migrations (pgroll), data cloning, scratch (on-demand fast) branches, branch metrics, or AI-powered SQL generation. Handles xata commands, database branch management, project setup, team management, connection strings, and database administration tasks.
+description: Manages Xata serverless PostgreSQL databases via the xata CLI. Triggers when working with Xata projects, branches, organizations, authentication, schema migrations (pgroll), data cloning, scratch (on-demand fast) branches, branch metrics, branch logs, or AI-powered SQL generation. Handles xata commands, database branch management, project setup, team management, connection strings, and database administration tasks.
 ---
 
 # Using Xata CLI
@@ -37,7 +37,7 @@ xata version
 - The active profile is selected with `xata auth switch`; the `--profile <name>` flag is only available on `xata auth` commands. For other commands, set the active profile first or export `XATA_API_KEY`.
 - Many commands accept `--organization <id>`, `--project <id>`, `--branch <id>`, and `--database <name>` to override the values stored in the local `.xata` config.
 
-## Emergency Quick Commands
+## Quick Commands
 
 ### Check Current State
 
