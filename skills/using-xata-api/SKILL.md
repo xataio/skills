@@ -18,7 +18,7 @@ This skill orients you to the conventions. The source of truth for exact request
 curl -H "Authorization: Bearer $XATA_API_KEY" https://api.xata.tech/organizations
 ```
 
-Create API keys in the dashboard or with `xata keys create` (see the `using-xata-cli` skill). OAuth 2.0 is also supported for user-facing apps (Keycloak realm `xata`, with scopes such as `org:read`, `project:read`, `branch:write`).
+Create API keys in the dashboard or with `xata keys user create` (or `xata keys organization create`; see the `using-xata-cli` skill). OAuth 2.0 is also supported for user-facing apps (`https://auth.xata.io/realms/xata`, with scopes such as `org:read`, `project:read`, `branch:write`).
 
 This applies to the management API on `api.xata.tech` only. The SQL data gateway authenticates differently (see below): it takes the branch connection string, not the API key.
 
@@ -50,8 +50,8 @@ Substitute the credentials into the connection string and connect with any Postg
 
 SQL runs against the data gateway, not the management API, and it uses a different host and a different credential. There is no API-key bearer here.
 
-- Host: per branch, `https://{branchID}.{region}.xata.tech` (the host encodes the branch and region).
-- Auth: the `Connection-String` header, whose value is the branch's full PostgreSQL connection string (it embeds the credentials). The control-plane API key (`Authorization: Bearer`) is **not** accepted on the gateway.
+- Host: per branch, `https://{branch}.{region}.xata.tech`. The branch part carries an endpoint-type suffix — `-rw` (read-write) or `-ro` (read-only) — and the request host must match the host in the connection string.
+- Auth: the `Connection-String` header, whose value is the branch's full PostgreSQL connection string (`postgres://user:pass@{branch}.{region}.xata.tech/db`, with the password embedded). The control-plane API key (`Authorization: Bearer`) is **not** accepted on the gateway.
 - Execute SQL with `POST /sql`; a PostgreSQL wire-protocol proxy is available over WebSocket at `GET /v2`.
 
 ```sh
@@ -72,7 +72,7 @@ In short: management calls on `api.xata.tech` use the API key; data/SQL calls on
 
 ## Conventions
 
-- **Pagination:** most list endpoints take `first` (0-based offset) and `max` (default and maximum 100). Some endpoints instead use `cursor` and `limit` and return `pagination_metadata: { has_more, next_cursor }`. Loop until `has_more` is false (or fewer than `max` rows come back).
+- **Pagination:** most list endpoints (organizations, projects, branches, members, API keys) return the whole collection and take no pagination params. The exceptions: `GET /organizations/{organizationID}/invitations` takes `first` (0-based offset, default `0`) and `max` (default and maximum `100`); `GET /organizations/{organizationID}/billing/invoices` takes `cursor` and `limit` (default `20`, max `100`) and returns `pagination_metadata: { has_more, next_cursor }` — loop until `has_more` is false.
 - **Errors:** a non-2xx response returns a JSON body shaped like `{ "message": "...", "code"?, "severity"?, "detail"?, "hint"? }`. Common statuses: `400` validation, `401` authentication, `403` forbidden, `404` not found, `409` conflict.
 - **Safety:** `GET` is read-only and safe to retry; `POST`/`PATCH` create or modify; `DELETE` is destructive.
 

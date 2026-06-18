@@ -13,6 +13,7 @@ Most branch subcommands accept the target branch either as a positional argument
 - [Get Connection String](#get-connection-string)
 - [Wait for Branch Ready](#wait-for-branch-ready)
 - [Branch Metrics](#branch-metrics)
+- [Branch Logs](#branch-logs)
 - [Rotate Password](#rotate-password)
 - [Delete Branch](#delete-branch)
 - [Branch Hierarchy](#branch-hierarchy)
@@ -153,19 +154,50 @@ xata branch metrics <name>
 
 Useful flags:
 
-| Flag             | Description                                                                 |
-| ---------------- | --------------------------------------------------------------------------- |
-| `--range`        | Time range ending now, e.g. `1h`, `24h`, `7d`                               |
-| `--from` / `--to`| Start/end as ISO timestamps                                                 |
-| `--metrics`      | `default`, `all`, or a comma-separated list                                 |
-| `--instances`    | `all`, `primary`, `replicas`, or comma-separated instance IDs               |
-| `--aggregations` | Comma-separated `avg,max,min` (default `avg,max,min`)                        |
-| `--format`       | Output format (`table` by default)                                          |
-| `--watch`, `-w`  | Refresh metrics continuously                                                |
-| `--interval`     | Refresh interval for watch mode, e.g. `10s`, `1m`, `500ms`                  |
+| Flag              | Description                                                                  |
+| ----------------- | --------------------------------------------------------------------------- |
+| `--since`         | Time range ending now, e.g. `1h`, `24h`, `7d`                               |
+| `--start` / `--end`| Start/end as ISO timestamps                                                |
+| `--metrics`       | `default`, `all`, or a comma-separated list (default `default`)             |
+| `--instances`     | `all`, `primary`, `replicas`, or comma-separated instance IDs (default `all`)|
+| `--aggregations`  | Comma-separated `avg,max,min` (default `avg,max,min`)                        |
+| `--aggregation`   | Single aggregation to render in table/TUI output (`avg`, `max`, or `min`)   |
+| `--output`, `-o`  | Output format: `table`, `json`, `ndjson`, or `tui` (default `table`)        |
+| `--watch`, `-w`   | Refresh metrics continuously                                                |
+| `--refresh`       | Refresh interval for watch mode, e.g. `10s`, `1m`, `500ms` (default `10s`)  |
 
 ```bash
-xata branch metrics --range 1h --watch
+xata branch metrics --since 1h --watch
+```
+
+## Branch Logs
+
+Retrieve database logs for a branch (defaults to the last hour):
+
+```bash
+xata branch logs
+xata branch logs <name>
+```
+
+Useful flags:
+
+| Flag             | Description                                                                  |
+| ---------------- | ---------------------------------------------------------------------------- |
+| `--level`        | Filter by level (`debug`, `info`, `warning`, `error`); repeatable            |
+| `--instance`     | Filter by branch instance ID; repeatable                                     |
+| `--process`      | Filter by process name; repeatable                                           |
+| `--search`       | Case-insensitive substring search in the message body                        |
+| `--start` / `--end`| Time bounds as ISO timestamps or relative durations (e.g. `15m`, `1h`, `7d`); `--start` defaults to 1h ago |
+| `--limit`        | Maximum logs to fetch, up to `1000` (default `100`)                          |
+| `--follow`, `-f` | Poll for new logs continuously                                               |
+| `--output`, `-o` | Output format: `raw`, `json`, `ndjson`, or `csv` (default `raw`)             |
+
+```bash
+# Errors from the last 24h, followed live
+xata branch logs --level error --start 24h --follow
+
+# Regex filtering: pipe raw output to rg/grep
+xata branch logs --output raw | rg 'timeout|deadlock'
 ```
 
 ## Rotate Password
@@ -200,7 +232,7 @@ View the branch tree:
 xata branch tree
 ```
 
-**Alias:** `topology`. Add `--show-ids` to include branch IDs.
+**Alias:** `topology`. Add `--show-id` to include branch IDs.
 
 ## Branch Configuration
 

@@ -10,6 +10,12 @@ Install all skills:
 npx skills add xataio/skills
 ```
 
+Install a specific skill:
+
+```bash
+npx skills add xataio/skills --skill managing-postgresql
+```
+
 For more information about skills, visit [skills.sh](https://skills.sh).
 
 ## Available Skills
@@ -19,7 +25,7 @@ For more information about skills, visit [skills.sh](https://skills.sh).
 Diagnoses and troubleshoots PostgreSQL database issues including slow queries, high CPU, memory pressure, connections, locks, vacuum, indexes, and replication.
 
 ```bash
-npx skills add xataio/skills/skills/managing-postgresql
+npx skills add xataio/skills --skill managing-postgresql
 ```
 
 | Reference                                                            | Description                   |
@@ -43,7 +49,7 @@ npx skills add xataio/skills/skills/managing-postgresql
 Manages Xata serverless PostgreSQL databases via the xata CLI. Covers authentication, projects, branches, schema migrations (pgroll), organizations, API keys, and database cloning with anonymization.
 
 ```bash
-npx skills add xataio/skills/skills/using-xata-cli
+npx skills add xataio/skills --skill using-xata-cli
 ```
 
 | Reference                                                         | Description                  |
@@ -56,12 +62,14 @@ npx skills add xataio/skills/skills/using-xata-cli
 | [keys](skills/using-xata-cli/reference/keys.md)                   | API key management           |
 | [clone](skills/using-xata-cli/reference/clone.md)                 | Database cloning             |
 
+### using-xata-api
+
+Uses the Xata HTTP API to manage organizations, projects, and branches, authenticate with an API key or OAuth, get a branch connection string, and understand pagination and error conventions.
+
+```bash
+npx skills add xataio/skills --skill using-xata-api
+```
+
 ## Contributing
 
-When adding new skills:
-
-1. Create a new directory under `skills/` with a descriptive name (prefer gerund form, e.g., `managing-postgresql`)
-2. Add a `SKILL.md` file with YAML frontmatter (`name`, `description`)
-3. Keep SKILL.md under 500 lines - use `reference/` subdirectory for detailed content
-4. Follow progressive disclosure: SKILL.md provides overview, reference files provide depth
-5. Include practical examples and concise explanations (Claude already knows the basics)
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on creating and maintaining skills.
