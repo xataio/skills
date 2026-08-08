@@ -1,6 +1,27 @@
 # Xata Skills
 
-A collection of agent skills for AI coding assistants.
+A collection of agent skills for AI coding assistants, packaged as an [Agent Plugin](https://agent-plugins.org/).
+
+A client that implements the standard loads it from a clone of this repository:
+
+```text
+plugin.json    # manifest
+mcp.json       # hosted Xata MCP server
+skills/        # one directory per skill, each with a SKILL.md
+```
+
+## MCP server
+
+The plugin declares Xata's hosted MCP server at `https://api.xata.tech/mcp`, adding typed tools for organizations, projects, branches, and SQL. It is remote (nothing to install) and speaks Streamable HTTP only.
+
+Authentication is handled by your client — no credentials are committed here. Most clients run the browser OAuth flow on first connection. For headless use, add the server with an API key directly instead:
+
+```bash
+claude mcp add --transport http xata https://api.xata.tech/mcp \
+  --header "Authorization: Bearer $XATA_API_KEY"
+```
+
+See the [Xata MCP documentation](https://xata.io/docs/platform/mcp) for per-client setup.
 
 ## Installation
 

@@ -2,6 +2,15 @@
 
 This guide covers how to create effective skills for this repository. The guidelines are based on [Anthropic's skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 
+## Packaging
+
+This repository is an [Agent Plugins 1.0.0](https://agent-plugins.org/) package:
+
+- Skills live exactly one level under `skills/`, as `skills/<name>/SKILL.md`. Clients do not search deeper.
+- `plugin.json` has a closed schema — only `$schema`, `name`, `version`, `description`, `author`, `homepage`, `repository`, `license`, `keywords`, and `extensions`. Client-specific settings go under a reverse-domain key in `extensions`, never as new top-level fields.
+- MCP servers are declared only in `mcp.json`, whose `$schema` version must match `plugin.json` — a mismatch makes clients drop MCP entirely. Never commit credentials in `headers` or `env`; they are visible package data.
+- Bump `version` in `plugin.json` when you add, remove, or materially change a skill or server.
+
 ## Quick Start
 
 1. Create a new directory under `skills/` with a descriptive name (prefer gerund form, e.g., `managing-postgresql`)
@@ -37,7 +46,8 @@ description: What the skill does and when to use it. Use when...
 **Name requirements:**
 - Maximum 64 characters
 - Lowercase letters, numbers, and hyphens only
-- Cannot contain reserved words: "anthropic", "claude"
+- Cannot start or end with a hyphen, or contain consecutive hyphens
+- Must match the skill's directory name
 
 **Description requirements:**
 - Non-empty, maximum 1024 characters
