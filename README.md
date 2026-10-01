@@ -87,6 +87,16 @@ npx skills add xataio/skills --skill using-xata-cli
 
 Creates isolated Xata PostgreSQL branches with realistic data for fixing bugs, building features, and validating changes without querying the source or production database. Works with any coding assistant that has shell access; requires authenticated `xata` and installed `psql`, plus authenticated `gh` only for a supplied GitHub issue or pull request.
 
+Install for Claude Code with the Xata CLI:
+
+```bash
+xata skill install branching-postgresql-for-agents --agent claude-code
+```
+
+This requires a CLI release containing `xata skill install`. The installer has merged into the frontend repository's `main` branch but is not yet released.
+
+Alternatively, install with the skills CLI:
+
 ```bash
 npx skills add xataio/skills --skill branching-postgresql-for-agents
 ```
