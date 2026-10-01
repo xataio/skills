@@ -83,6 +83,26 @@ npx skills add xataio/skills --skill using-xata-cli
 | [keys](skills/using-xata-cli/reference/keys.md)                   | API key management           |
 | [clone](skills/using-xata-cli/reference/clone.md)                 | Database cloning             |
 
+### branching-postgresql-for-agents
+
+Creates isolated Xata PostgreSQL branches with realistic data for fixing bugs, building features, and validating changes without querying the source or production database. Works with any coding assistant that has shell access; requires authenticated `xata` and installed `psql`, plus authenticated `gh` only for a supplied GitHub issue or pull request.
+
+Install for Claude Code with the Xata CLI:
+
+```bash
+xata skill install branching-postgresql-for-agents --agent claude-code
+```
+
+This requires a CLI release containing `xata skill install`. The installer has merged into the frontend repository's `main` branch but is not yet released.
+
+Alternatively, install with the skills CLI:
+
+```bash
+npx skills add xataio/skills --skill branching-postgresql-for-agents
+```
+
+The [workflow](skills/branching-postgresql-for-agents/SKILL.md) is self-contained and includes its [Apache-2.0 license](skills/branching-postgresql-for-agents/LICENSE.txt); no other skill is required.
+
 ### using-xata-api
 
 Uses the Xata HTTP API to manage organizations, projects, and branches, authenticate with an API key or OAuth, get a branch connection string, and understand pagination and error conventions.
