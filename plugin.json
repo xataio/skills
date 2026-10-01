@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "xata",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Agent skills for Xata serverless PostgreSQL — the xata CLI, the Xata HTTP API, and PostgreSQL administration — plus the hosted Xata MCP server.",
   "author": {
     "name": "Xata",
