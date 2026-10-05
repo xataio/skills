@@ -4,8 +4,6 @@ description: Creates isolated Xata PostgreSQL branches with realistic data to in
 license: Apache-2.0
 ---
 
-<!-- Adapted from https://github.com/xataio/frontend/blob/ae450a4543835c952b4879908057f8f9d64476d4/apps/website/public/xata-claude-skill/SKILL.md. Modified for harness-neutral use and explicit branch safety checks. -->
-
 # Branching PostgreSQL for Agents
 
 Fix bugs and build features against an isolated database branch with realistic data, then validate the changes on that branch.
