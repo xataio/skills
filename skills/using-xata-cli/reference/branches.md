@@ -117,12 +117,12 @@ xata branch url <name> --database <db>
 
 Use `--type` to choose how the connection string routes:
 
-| `--type` value         | Description                                          |
-| ---------------------- | ---------------------------------------------------- |
-| `primary` (default)    | Direct access to the primary                         |
-| `primary-or-replica`   | Routed access to primary or replicas                 |
-| `replica`              | Read-only access to replicas only                    |
-| `pooler`               | Pooled access to the primary                         |
+| `--type` value         | Description                                                         |
+| ---------------------- | ------------------------------------------------------------------- |
+| `primary` (default)    | Direct access to the primary                                        |
+| `primary-or-replica`   | Routed access to primary or replicas, requires at least one replica |
+| `replica`              | Read-only access to replicas only                                   |
+| `pooler`               | Pooled access to the primary                                        |
 
 ```bash
 xata branch url --type pooler
